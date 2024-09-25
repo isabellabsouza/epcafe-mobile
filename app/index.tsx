@@ -5,6 +5,7 @@ import { View, StyleSheet, Text, Image } from 'react-native';
  
 export default function App() {
     return (
+        
         <View style={styles.container}>
             <Text>Bem Vindo ao èpCafé! </Text>
 

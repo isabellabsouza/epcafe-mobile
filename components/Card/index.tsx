@@ -1,14 +1,14 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import {Link} from 'expo-router';
 interface CardProps {
-    route: string;
-    title: string;
+    rota: string;
+    titulo: string;
 }
-const Card: React.FC<CardProps> = ({route, title}) => {
+const Card: React.FC<CardProps> = ({rota, titulo}) => {
     return (
-        <Link href={route} asChild>
+        <Link href={rota} asChild>
             <TouchableOpacity style={styles.cardContainer}>
-                <Text>{title}</Text>
+                <Text>{titulo}</Text>
             </TouchableOpacity>
         </Link>
     );

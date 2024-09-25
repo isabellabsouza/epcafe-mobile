@@ -11,7 +11,7 @@ export default function HomeScreen() {
   return (
     <View>
       <Text>Home</Text>
-      <Card route="restricted/maquinas" title="Máquinas" />
+      <Card rota="restricted/maquinas" titulo="Máquinas" />
     </View>
   );
 }
