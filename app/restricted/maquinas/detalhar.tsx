@@ -1,13 +1,17 @@
 import {View, Text, TouchableOpacity} from 'react-native';
 import { Link, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { maquinasCollection } from '@/db';
+import database, { maquinasCollection } from '@/db';
 import Maquina from '@/db/model/Maquina';
 import ButtonLink from '@/components/ButtonLink';
+import { withObservables } from '@nozbe/watermelondb/react';
+import Entypo from '@expo/vector-icons/Entypo';
 
 
 export default function detalharMaquina() {
+
     const { id } = useLocalSearchParams();
+    console.log("ID da máquina: ", id);
 
     const [maquina, setMaquina] = useState<Maquina>();
     const [loading, setLoading] = useState(true);
@@ -34,6 +38,12 @@ export default function detalharMaquina() {
         return <Text>Máquina não encontrada.</Text>;
     }
 
+    const excluir = async () => {
+        await database.write(async () => {
+            await maquina.markAsDeleted();
+        })
+    };
+
     return (
         <View>
             <Text>Detalhar Máquina</Text>
@@ -45,6 +55,20 @@ export default function detalharMaquina() {
             {/* <ButtonLink route="/restricted/maquinas/criar" title="Editar" /> */}
             <Text>Nome: {maquina.nome}</Text>
             <Text>Vida Útil: {maquina.vida_util} anos</Text>
+            <Entypo name="trash" size={24} color="black" onPress={excluir}/>
         </View>
     );
 }
+
+// const enhance = withObservables(['id'], ({ id }) => {
+
+//     if (!id) {
+//         throw new Error('ID da máquina está undefined');
+//     }
+//     return {
+
+//         maquina: maquinasCollection.findAndObserve(id), // Observa a máquina específica com o ID
+//     };
+// });
+
+// export default enhance(detalharMaquina);

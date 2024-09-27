@@ -22,9 +22,12 @@ function CardLista({maquinas}: {maquinas: Maquina[]}) {
     return (
 
         <FlatList
+            style={styles.listaContainer}
             contentContainerStyle={{ gap: 5 }}
             data={maquinas}
+            numColumns={2}
             renderItem={({ item }) => <CardMaquina maquina={item} rota="/restricted/maquinas/detalhar" />}
+            keyExtractor={(item) => item.id.toString()}
         />
     );
 
@@ -39,6 +42,9 @@ export default enhance(CardLista);
 
 const styles = StyleSheet.create({
     listaContainer: {
-        
+        // marginTop: 20,
+        // flexDirection: 'row',
+        // flexWrap: 'wrap',
+        // justifyContent: 'space-between'
     }
 })
