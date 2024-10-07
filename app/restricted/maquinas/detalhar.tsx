@@ -8,32 +8,45 @@ import { withObservables } from '@nozbe/watermelondb/react';
 import Entypo from '@expo/vector-icons/Entypo';
 
 
-export default function detalharMaquina() {
+function detalharMaquina({ maquina }: { maquina: Maquina }) {
+
+    // const { id } = useLocalSearchParams();
+    // console.log("ID da máquina: ", id);
+
+    // const [maquina, setMaquina] = useState<Maquina>();
+    // const [loading, setLoading] = useState(true);
+    // //console.log("Máquina: ", maquina);
+
+    // useEffect(() => {
+    //     // Verifica se o ID está presente antes de buscar
+    //     if (id) {
+    //         const fetchMaquina = async () => {
+    //             try {
+    //                 const maquina = await maquinasCollection.find(String(id)); // Certifique-se de que o 'id' é uma string
+    //                 setMaquina(maquina);
+    //             } catch (error) {
+    //                 console.error("Erro ao buscar a máquina:", error);
+    //             } finally {
+    //                 setLoading(false);
+    //             }
+    //         };
+
+    //         fetchMaquina();
+    //     }
+    // }, [id]);
+
+    // if (!maquina) {
+    //     return <Text>Máquina não encontrada.</Text>;
+    // }
+
+    // const excluir = async () => {
+    //     await database.write(async () => {
+    //         await maquina.markAsDeleted();
+    //     })
+    // };
 
     const { id } = useLocalSearchParams();
-    console.log("ID da máquina: ", id);
-
-    const [maquina, setMaquina] = useState<Maquina>();
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // Verifica se o ID está presente antes de buscar
-        if (id) {
-            const fetchMaquina = async () => {
-                try {
-                    const maquina = await maquinasCollection.find(String(id)); // Certifique-se de que o 'id' é uma string
-                    setMaquina(maquina);
-                } catch (error) {
-                    console.error("Erro ao buscar a máquina:", error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            fetchMaquina();
-        }
-    }, [id]);
-
+    
     if (!maquina) {
         return <Text>Máquina não encontrada.</Text>;
     }
@@ -41,7 +54,7 @@ export default function detalharMaquina() {
     const excluir = async () => {
         await database.write(async () => {
             await maquina.markAsDeleted();
-        })
+        });
     };
 
     return (
@@ -59,6 +72,30 @@ export default function detalharMaquina() {
         </View>
     );
 }
+
+const enhance = withObservables(
+    ['id'], // Dependências para observar
+    ({ id }: { id: string }) => {
+        if (!id) {
+            throw new Error("ID não encontrado.");
+        }
+        return {
+            maquina: maquinasCollection.findAndObserve(id),
+        };
+    }
+);
+
+function EnhancedDetalharMaquina() {
+    const { id } = useLocalSearchParams(); // Pegando o ID da máquina
+    if (!id) {
+        return <Text>ID da máquina não foi fornecido.</Text>;
+    }
+
+    const EnhancedComponent = enhance(detalharMaquina);
+    return <EnhancedComponent id={String(id)} />;
+}
+
+export default EnhancedDetalharMaquina;
 
 // const enhance = withObservables(['id'], ({ id }) => {
 
