@@ -55,6 +55,7 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
         await database.write(async () => {
             await maquina.markAsDeleted();
         });
+        console.log("Máquina excluída com sucesso.");
     };
 
     return (
