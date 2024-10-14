@@ -1,5 +1,5 @@
 import ButtonLink from '@/components/ButtonLink';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, SafeAreaView } from 'react-native';
 
 import CardLista from '@/components/CardLista';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -12,7 +12,8 @@ export default function Maquinas() {
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <View>
             <Stack.Screen options={{headerLeft: () => {
                 return <AntDesign name="arrowleft" size={24} color="black" onPress={goBack} />
             },
@@ -23,13 +24,14 @@ export default function Maquinas() {
             <ButtonLink route="/restricted/maquinas/criar" title="Nova Máquina" />
             
             <CardLista />
-        </View>
+            </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        
+        marginBottom: 170
 
     },
     titulo: {

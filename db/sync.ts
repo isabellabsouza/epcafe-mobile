@@ -5,10 +5,10 @@ import { supabase } from '@/lib/supabase'
 export async function mySync() {
     await synchronize({
         database,
+        //sendCreatedAsUpdated: true,
         pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
             console.log("pullChanges")
 
-            
             const {data, error} = await supabase.rpc('pull', {
                 last_pulled_at: lastPulledAt,
                 schemaversion: schemaVersion,
@@ -16,6 +16,9 @@ export async function mySync() {
             });
             console.log(error)
             console.log(data)
+            console.log(data.changes.maquina.created)
+            console.log(data.changes.maquina.updated)
+            console.log(data.changes.maquina.deleted)
             return {changes: data.changes, timestamp: data.timestamp};
 
             //return {changes: {}, timestamp: +new Date()};
