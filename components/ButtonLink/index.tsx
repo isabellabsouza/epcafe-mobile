@@ -1,4 +1,4 @@
-import {Link} from 'expo-router';
+import {Href, Link} from 'expo-router';
 import {Text, TouchableOpacity, StyleSheet} from 'react-native';
 
 interface ButtonLinkProps {
@@ -8,7 +8,7 @@ interface ButtonLinkProps {
 
 const ButtonLink: React.FC<ButtonLinkProps> = ({route, title}) => {
     return (
-        <Link href={route} asChild>
+        <Link href={route as unknown as Href<string | object>} asChild>
             <TouchableOpacity style={styles.button}>
                 <Text style={styles.buttonText}>{title}</Text>
             </TouchableOpacity>

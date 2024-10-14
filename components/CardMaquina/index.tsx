@@ -10,11 +10,13 @@ type CardMaquinaProps = {
 }
 function CardMaquina({maquina, rota}: CardMaquinaProps) {
     return (
-        <Link href={{ pathname: rota, params: {id: maquina.id}}} asChild>
-        <TouchableOpacity style={styles.cardContainer}>
-            <Text>{maquina.nome}</Text>
-            <Text>{maquina.vida_util}</Text>
-        </TouchableOpacity>
+        <Link href={{ pathname: rota as any, params: {id: maquina.id}}} asChild>
+            <TouchableOpacity style={styles.cardContainer}>
+                <Text style={styles.titulo}>{maquina.nome}</Text>
+                <Text style={styles.info}>{maquina.vida_util} anos</Text>
+                <Text style={styles.info}>Potência</Text>
+                <Text style={styles.info}>Combustível</Text>
+            </TouchableOpacity>
         </Link>
     );
 }
@@ -30,11 +32,19 @@ export default enhance(CardMaquina);
 
 const styles = StyleSheet.create({
     cardContainer: {
-        backgroundColor: 'gray',
+        backgroundColor: '#D9D9D9',
         padding: 10,
-        flex: 1,
-        margin: 5,
-        borderRadius: 10
+        paddingLeft: 15,
+        marginVertical: 10,
+        width: '48%', 
+        borderRadius: 20,
+        gap: 5
+    },
+    titulo: {
+        fontSize: 19,
         
+    },
+    info: {
+        fontSize: 15
     }
 })

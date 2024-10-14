@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import { Link, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import database, { maquinasCollection } from '@/db';
@@ -6,44 +6,12 @@ import Maquina from '@/db/model/Maquina';
 import ButtonLink from '@/components/ButtonLink';
 import { withObservables } from '@nozbe/watermelondb/react';
 import Entypo from '@expo/vector-icons/Entypo';
+import Titulo from '@/components/Titulo';
+import Botao from '@/components/Botao';
+import InfoLinha from '@/components/InfoLinha';
 
 
 function detalharMaquina({ maquina }: { maquina: Maquina }) {
-
-    // const { id } = useLocalSearchParams();
-    // console.log("ID da máquina: ", id);
-
-    // const [maquina, setMaquina] = useState<Maquina>();
-    // const [loading, setLoading] = useState(true);
-    // //console.log("Máquina: ", maquina);
-
-    // useEffect(() => {
-    //     // Verifica se o ID está presente antes de buscar
-    //     if (id) {
-    //         const fetchMaquina = async () => {
-    //             try {
-    //                 const maquina = await maquinasCollection.find(String(id)); // Certifique-se de que o 'id' é uma string
-    //                 setMaquina(maquina);
-    //             } catch (error) {
-    //                 console.error("Erro ao buscar a máquina:", error);
-    //             } finally {
-    //                 setLoading(false);
-    //             }
-    //         };
-
-    //         fetchMaquina();
-    //     }
-    // }, [id]);
-
-    // if (!maquina) {
-    //     return <Text>Máquina não encontrada.</Text>;
-    // }
-
-    // const excluir = async () => {
-    //     await database.write(async () => {
-    //         await maquina.markAsDeleted();
-    //     })
-    // };
 
     const { id } = useLocalSearchParams();
     
@@ -59,18 +27,27 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
     };
 
     return (
-        <View>
-            <Text>Detalhar Máquina</Text>
-            <Link href={{ pathname: "/restricted/maquinas/criar", params: {id: maquina.id}}} asChild>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+            <Titulo titulo={maquina.nome} />
+
+            <InfoLinha label="Nome" valor={maquina.nome} />
+            <InfoLinha label="Vida Útil" valor={maquina.vida_util + " anos"} />
+
+            {/* <Link href={{ pathname: "/restricted/maquinas/criar", params: {id: maquina.id}}} asChild>
                 <TouchableOpacity>
                     <Text>Editar</Text>
                 </TouchableOpacity>
             </Link>
-            {/* <ButtonLink route="/restricted/maquinas/criar" title="Editar" /> */}
+            
             <Text>Nome: {maquina.nome}</Text>
             <Text>Vida Útil: {maquina.vida_util} anos</Text>
-            <Entypo name="trash" size={24} color="black" onPress={excluir}/>
-        </View>
+            <Entypo name="trash" size={24} color="black" onPress={excluir}/> */}
+
+            <View style={styles.botoesContainer}>
+                <Botao nome="Editar" rota={`/restricted/maquinas/criar?id=${id}`} />
+                <Botao nome="Excluir" rota={`/restricted/maquinas/criar?id=${id}`} />
+            </View>
+        </ScrollView>
     );
 }
 
@@ -98,15 +75,14 @@ function EnhancedDetalharMaquina() {
 
 export default EnhancedDetalharMaquina;
 
-// const enhance = withObservables(['id'], ({ id }) => {
-
-//     if (!id) {
-//         throw new Error('ID da máquina está undefined');
-//     }
-//     return {
-
-//         maquina: maquinasCollection.findAndObserve(id), // Observa a máquina específica com o ID
-//     };
-// });
-
-// export default enhance(detalharMaquina);
+const styles = StyleSheet.create({
+    scrollContent: {
+        padding: 17,
+        flexGrow: 1, 
+    },
+    botoesContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: 15
+    }
+})

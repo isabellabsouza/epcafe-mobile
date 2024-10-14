@@ -1,16 +1,29 @@
+import Botao from "@/components/Botao";
 import Input from "@/components/Input";
-import database , {maquinasCollection} from "@/db";
-import { useEffect, useState } from "react";
-import { View, Text, Button, TextInput } from "react-native";
-import { Link, useLocalSearchParams } from 'expo-router';
+import Titulo from "@/components/Titulo";
+import database, { maquinasCollection } from "@/db";
 import Maquina from "@/db/model/Maquina";
+import { useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from "react";
+import { Button, Text, TextInput, View, StyleSheet, ScrollView } from "react-native";
 
 export default function CriarMaquina() {
     const { id } = useLocalSearchParams();
     const [nome, setNome] = useState('');
     const [vida_util, setVida_util] = useState('');
     const [maquina, setMaquina] = useState<Maquina>();
-    
+
+    const camposMaquina = [
+        {
+            label: 'Nome',
+            placeholder: 'Informe o nome da máquina',
+        },
+        {
+            label: 'Vida Útil',
+            placeholder: 'Informe a vida útil em anos',
+        }
+    ]
+
     useEffect(() => {
         if (id) {
             const fetchMaquina = async () => {
@@ -52,9 +65,9 @@ export default function CriarMaquina() {
             console.log("Máquina criada com sucesso!");
         }
         setNome('');
-        setVida_util(''); 
+        setVida_util('');
 
-        
+
         const maquinas = await maquinasCollection.query().fetch();
         //exibir maquina criada
 
@@ -63,14 +76,16 @@ export default function CriarMaquina() {
     }
 
     return (
-        <View>
-            <Text>Adicionar Máquina</Text>
+        <ScrollView contentContainerStyle={styles.scrollContent} >
+            <Titulo titulo="Adicionar Máquina"></Titulo>
 
-            {/* <Input placeholder="Nome" />
-
-            <Input placeholder="Vida útil" /> */}
-
-            <TextInput
+            {
+                camposMaquina.map((campo, index) => (
+                    <Input key={index} label={campo.label} placeholder={campo.placeholder} />
+                ))
+            }
+            
+            {/* <TextInput
                 placeholder="Nome"
                 onChangeText={setNome}
                 value={nome}
@@ -81,9 +96,18 @@ export default function CriarMaquina() {
                 onChangeText={setVida_util}
                 value={vida_util}
                 keyboardType="numeric"
-            />
+            /> */}
 
-            <Button title="Salvar" onPress={salvarMaquina}/>
-        </View>
+            <Botao nome="Salvar" rota="/maquinas" />
+
+            {/* <Button title="Salvar" onPress={salvarMaquina} /> */}
+        </ScrollView>
     );
 }
+
+const styles = StyleSheet.create({
+    scrollContent: {
+        padding: 17,
+        flexGrow: 1, 
+    },
+})
