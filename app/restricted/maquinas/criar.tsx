@@ -32,10 +32,12 @@ export default function CriarMaquina() {
     const salvarMaquina = async () => {
         if (maquina) {
             // Se a máquina já existe, atualizar
+            console.log("TEste" + maquina.createdAt);
             await database.write(async () => {
                 await maquina.update((m) => {
                     m.nome = nome;
                     m.vida_util = Number.parseInt(vida_util);
+                    //m.created_at = new Date();
                 });
             });
             console.log("Máquina atualizada com sucesso!");
@@ -52,8 +54,11 @@ export default function CriarMaquina() {
         setNome('');
         setVida_util(''); 
 
-        console.log("Máquina salva com sucesso!");
+        
         const maquinas = await maquinasCollection.query().fetch();
+        //exibir maquina criada
+
+
         console.log(maquinas);
     }
 

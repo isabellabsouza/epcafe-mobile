@@ -6,7 +6,6 @@ import { maquinasCollection } from "@/db";
 
 import { withObservables } from '@nozbe/watermelondb/react';
 
-
 function CardLista({maquinas}: {maquinas: Maquina[]}) {
 
     // const [maquinas, setMaquinas] = useState<Maquina[]>([]);
@@ -20,7 +19,7 @@ function CardLista({maquinas}: {maquinas: Maquina[]}) {
     // }, []);
 
     return (
-
+        
         <FlatList
             style={styles.listaContainer}
             contentContainerStyle={{ gap: 5 }}
@@ -46,5 +45,6 @@ const styles = StyleSheet.create({
         // flexDirection: 'row',
         // flexWrap: 'wrap',
         // justifyContent: 'space-between'
+        
     }
 })
