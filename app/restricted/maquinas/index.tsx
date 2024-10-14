@@ -1,9 +1,10 @@
 import ButtonLink from '@/components/ButtonLink';
-import { Text, View, StyleSheet, SafeAreaView } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
 import CardLista from '@/components/CardLista';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router, Stack } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Maquinas() {
     
@@ -12,7 +13,6 @@ export default function Maquinas() {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
             <View>
             <Stack.Screen options={{headerLeft: () => {
                 return <AntDesign name="arrowleft" size={24} color="black" onPress={goBack} />
@@ -25,7 +25,6 @@ export default function Maquinas() {
             
             <CardLista />
             </View>
-        </SafeAreaView>
     );
 }
 
