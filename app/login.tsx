@@ -42,61 +42,67 @@ import { Session } from '@supabase/supabase-js'
 
 
 
-function handleLogin(){
-            //login logic
+function handleLogin() {
+    //login logic
     router.replace('/selecionarUnidade');
 }
 
 export default function Auth() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [sessao, setSessao] = useState<Session | null>(null)
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [sessao, setSessao] = useState<Session | null>(null)
 
-  async function signInWithEmail() {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    })
+    async function signInWithEmail() {
+        setLoading(true)
+        const { error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+        })
 
-    if (error) Alert.alert(error.message)
-    setLoading(false)
-  }
+        if (error) Alert.alert(error.message)
+        setLoading(false)
+    }
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session }}) => {
-      setSessao(session)
-    })
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSessao(session)
+        })
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSessao(session)
-    })
-  }, [])
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSessao(session)
+        })
 
-  if (sessao && sessao.user) {
-    router.replace("/selecionarUnidade")
-  }
+        return () => {
+            authListener.subscription.unsubscribe(); // Limpar listener ao desmontar
+        };
+    }, [])
+
+    useEffect(() => {
+        if (sessao && sessao.user) {
+          router.replace('/selecionarUnidade');
+        }
+    }, [sessao]);
 
 
-  return (
-    <View style={styles.container}>
-      <Titulo titulo="Entre na sua conta" />
+    return (
+        <View style={styles.container}>
+            <Titulo titulo="Entre na sua conta" />
 
-      <Input
-        label='Email'
-        placeholder='Digite seu email'
-        value={email}
-        onChangeText={setEmail}
-      />
+            <Input
+                label='Email'
+                placeholder='Digite seu email'
+                value={email}
+                onChangeText={setEmail}
+            />
 
-      <Input
-        label='Senha'
-        placeholder='Digite sua senha'
-        value={password}
-        onChangeText={setPassword}
-      />
-      {/* <View style={[styles.verticallySpaced, styles.mt20]}>
+            <Input
+                label='Senha'
+                placeholder='Digite sua senha'
+                value={password}
+                onChangeText={setPassword}
+            />
+            {/* <View style={[styles.verticallySpaced, styles.mt20]}>
         <TextInput
           onChangeText={(text) => setEmail(text)}
           value={email}
@@ -119,22 +125,22 @@ export default function Auth() {
       <View style={styles.verticallySpaced}>
         <Button title="Sign up" disabled={loading} onPress={() => signUpWithEmail()} />
       </View> */}
-      <Botao nome="Entrar" disabled={loading} onPress={() => signInWithEmail()} />
-    </View>
-  )
+            <Botao nome="Entrar" disabled={loading} onPress={() => signInWithEmail()} />
+        </View>
+    )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    //marginTop: 40,
-    padding: 17,
-  },
-  verticallySpaced: {
-    paddingTop: 4,
-    paddingBottom: 4,
-    alignSelf: 'stretch',
-  },
-  mt20: {
-    marginTop: 20,
-  },
+    container: {
+        //marginTop: 40,
+        padding: 17,
+    },
+    verticallySpaced: {
+        paddingTop: 4,
+        paddingBottom: 4,
+        alignSelf: 'stretch',
+    },
+    mt20: {
+        marginTop: 20,
+    },
 })
