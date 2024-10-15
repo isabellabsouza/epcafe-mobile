@@ -31,25 +31,16 @@
 // })
 
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, StyleSheet, View, AppState, TextInput, Button } from 'react-native'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
 import Titulo from '@/components/Titulo'
 import Input from '@/components/Input'
 import Botao from '@/components/Botao'
+import { Session } from '@supabase/supabase-js'
 
-// Tells Supabase Auth to continuously refresh the session automatically if
-// the app is in the foreground. When this is added, you will continue to receive
-// `onAuthStateChange` events with the `TOKEN_REFRESHED` or `SIGNED_OUT` event
-// if the user's session is terminated. This should only be registered once.
-AppState.addEventListener('change', (state) => {
-  if (state === 'active') {
-    supabase.auth.startAutoRefresh()
-  } else {
-    supabase.auth.stopAutoRefresh()
-  }
-})
+
 
 function handleLogin(){
             //login logic
@@ -60,6 +51,7 @@ export default function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [sessao, setSessao] = useState<Session | null>(null)
 
   async function signInWithEmail() {
     setLoading(true)
@@ -72,20 +64,20 @@ export default function Auth() {
     setLoading(false)
   }
 
-  async function signUpWithEmail() {
-    setLoading(true)
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
-      email: email,
-      password: password,
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session }}) => {
+      setSessao(session)
     })
 
-    if (error) Alert.alert(error.message)
-    if (!session) Alert.alert('Please check your inbox for email verification!')
-    setLoading(false)
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSessao(session)
+    })
+  }, [])
+
+  if (sessao && sessao.user) {
+    router.replace("/selecionarUnidade")
   }
+
 
   return (
     <View style={styles.container}>
@@ -127,7 +119,7 @@ export default function Auth() {
       <View style={styles.verticallySpaced}>
         <Button title="Sign up" disabled={loading} onPress={() => signUpWithEmail()} />
       </View> */}
-      <Botao nome="Entrar" onPress={handleLogin} />
+      <Botao nome="Entrar" disabled={loading} onPress={() => signInWithEmail()} />
     </View>
   )
 }

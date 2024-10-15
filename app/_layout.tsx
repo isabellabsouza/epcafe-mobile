@@ -33,7 +33,7 @@ export default function RootLayout() {
       //   <Stack.Screen name="restricted" />
       //   <Stack.Screen name="+not-found" />
       // </Stack>
-      <SafeAreaView style={{ flex: 1, padding:17 }}> 
+      <SafeAreaView style={{ flex: 1 }}> 
             <Slot />
         </SafeAreaView>
         

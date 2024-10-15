@@ -4,9 +4,10 @@ import { TouchableOpacity, StyleSheet, Text } from "react-native";
 interface BotaoProps {
     nome: string,
     rota?: string;  //rota é opcional
-    onPress?: () => void;  // Callback opcional para o botão
+    onPress?: () => void;
+    disabled: boolean;
 }
-export default function Botao({ nome, rota, onPress }: BotaoProps) {
+export default function Botao({ nome, rota, onPress, disabled }: BotaoProps) {
 
     const handlePress = () => {
         if (onPress) {
@@ -31,6 +32,7 @@ export default function Botao({ nome, rota, onPress }: BotaoProps) {
         <TouchableOpacity
             style={styles.botao}
             onPress={handlePress}
+            disabled={disabled}
         >
             <Text style={styles.textoBotao}>{nome}</Text>
         </TouchableOpacity>
