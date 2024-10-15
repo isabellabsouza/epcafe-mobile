@@ -24,7 +24,7 @@ export default function CampoPesquisa() {
                     style={styles.input} />
 
             </View>
-            {pesquisa && <Button title="Pesquisar" onPress={pesquisar} /> }
+            {/* {pesquisa && <Button title="Pesquisar" onPress={pesquisar} /> } */}
         </View>
     );
     

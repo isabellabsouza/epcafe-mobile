@@ -22,7 +22,13 @@ function CardLista({ maquinas }: { maquinas: Maquina[] }) {
 
         <View style={styles.cardsContainer}>
             {
-                maquinas.map((item) => <CardMaquina key={item.id.toString()} maquina={item} rota="/restricted/maquinas/detalhar" />)
+                maquinas.map((item) => 
+                    <CardMaquina 
+                        key={item.id.toString()} 
+                        maquina={item} 
+                        rota="/restricted/maquinas/detalhar" 
+                    />
+                )
             }
         </View>
 

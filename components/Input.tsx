@@ -2,14 +2,18 @@ import { TextInput, Text, StyleSheet } from "react-native";
 
 interface InputProps {
     label: string,
-    placeholder: string
+    placeholder: string,
+    value: string;  // Valor atual do campo
+    onChangeText: (text: string) => void; // Função para atualizar o valor
 }
-export default function Input({label, placeholder}: InputProps) {
+export default function Input({label, placeholder, value, onChangeText}: InputProps) {
     return (
         <>
             <Text style={styles.label}>{label}</Text>
             <TextInput 
                 placeholder={placeholder}
+                value={value}
+                onChangeText={onChangeText}
                 style={styles.campoInput}
             />
         </>

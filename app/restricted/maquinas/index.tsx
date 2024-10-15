@@ -58,13 +58,10 @@ export default function Maquinas() {
 
 
 const styles = StyleSheet.create({
-    container: {
-       // padding: 17,
-    },
-
+    
     scrollContent: {
         padding: 17,
-        flexGrow: 1, // Garante que o conteúdo ocupe todo o espaço disponível
+        flexGrow: 1, 
     },
     containerFiltros: {
         flexDirection: 'row',

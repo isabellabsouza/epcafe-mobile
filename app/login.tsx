@@ -35,6 +35,9 @@ import React, { useState } from 'react'
 import { Alert, StyleSheet, View, AppState, TextInput, Button } from 'react-native'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
+import Titulo from '@/components/Titulo'
+import Input from '@/components/Input'
+import Botao from '@/components/Botao'
 
 // Tells Supabase Auth to continuously refresh the session automatically if
 // the app is in the foreground. When this is added, you will continue to receive
@@ -50,7 +53,7 @@ AppState.addEventListener('change', (state) => {
 
 function handleLogin(){
             //login logic
-    router.replace('/restricted');
+    router.replace('/selecionarUnidade');
 }
 
 export default function Auth() {
@@ -86,7 +89,22 @@ export default function Auth() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
+      <Titulo titulo="Entre na sua conta" />
+
+      <Input
+        label='Email'
+        placeholder='Digite seu email'
+        value={email}
+        onChangeText={setEmail}
+      />
+
+      <Input
+        label='Senha'
+        placeholder='Digite sua senha'
+        value={password}
+        onChangeText={setPassword}
+      />
+      {/* <View style={[styles.verticallySpaced, styles.mt20]}>
         <TextInput
           onChangeText={(text) => setEmail(text)}
           value={email}
@@ -108,15 +126,16 @@ export default function Auth() {
       </View>
       <View style={styles.verticallySpaced}>
         <Button title="Sign up" disabled={loading} onPress={() => signUpWithEmail()} />
-      </View>
+      </View> */}
+      <Botao nome="Entrar" onPress={handleLogin} />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
-    padding: 12,
+    //marginTop: 40,
+    padding: 17,
   },
   verticallySpaced: {
     paddingTop: 4,

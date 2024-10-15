@@ -1,5 +1,5 @@
-import {View, Text, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
-import { Link, useLocalSearchParams } from 'expo-router';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, Alert } from 'react-native';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import database, { maquinasCollection } from '@/db';
 import Maquina from '@/db/model/Maquina';
@@ -9,20 +9,33 @@ import Entypo from '@expo/vector-icons/Entypo';
 import Titulo from '@/components/Titulo';
 import Botao from '@/components/Botao';
 import InfoLinha from '@/components/InfoLinha';
+import Toast from '@/components/Toast/Toast';
 
 
 function detalharMaquina({ maquina }: { maquina: Maquina }) {
 
     const { id } = useLocalSearchParams();
-    
+    const [modalVisible, setModalVisible] = useState(false);
+    const [toast, setToast] = useState(false);
+    const [gravidade, setGravidade] = useState('');
+    const [mensagem, setMensagem] = useState('');
+
     if (!maquina) {
         return <Text>Máquina não encontrada.</Text>;
+    }
+
+    function voltar() {
+        router.replace('/restricted');
     }
 
     const excluir = async () => {
         await database.write(async () => {
             await maquina.markAsDeleted();
         });
+        setGravidade('sucesso');
+        setMensagem('Máquina excluída com sucesso!');    
+        setToast(true);
+        setTimeout(() => {router.back()}, 3000);
         console.log("Máquina excluída com sucesso.");
     };
 
@@ -33,19 +46,47 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
             <InfoLinha label="Nome" valor={maquina.nome} />
             <InfoLinha label="Vida Útil" valor={maquina.vida_util + " anos"} />
 
-            {/* <Link href={{ pathname: "/restricted/maquinas/criar", params: {id: maquina.id}}} asChild>
-                <TouchableOpacity>
-                    <Text>Editar</Text>
-                </TouchableOpacity>
-            </Link>
-            
-            <Text>Nome: {maquina.nome}</Text>
-            <Text>Vida Útil: {maquina.vida_util} anos</Text>
-            <Entypo name="trash" size={24} color="black" onPress={excluir}/> */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    Alert.alert('Modal has been closed.');
+                    setModalVisible(!modalVisible);
+                }}
+            >
+                <View style={styles.overlay}>
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalTexto}>
+                            Tem certeza que deseja excluir a máquina {maquina.nome}?
+                        </Text>
+                        <View style={styles.botoesModal}>
+                            <Botao
+                                nome="Excluir"
+                                onPress={() => {
+                                    excluir();
+                                    setModalVisible(!modalVisible);
+                                }}
+                            />
+                            <Botao
+                                nome="Cancelar"
+                                onPress={() => setModalVisible(!modalVisible)}
+                            />
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {toast && 
+                <Toast setToast={ setToast } 
+                    mensagem={mensagem} 
+                    gravidade={gravidade} 
+                />
+            }
 
             <View style={styles.botoesContainer}>
                 <Botao nome="Editar" rota={`/restricted/maquinas/criar?id=${id}`} />
-                <Botao nome="Excluir" rota={`/restricted/maquinas/criar?id=${id}`} />
+                <Botao nome="Excluir" onPress={() => setModalVisible(true)} />
             </View>
         </ScrollView>
     );
@@ -78,11 +119,40 @@ export default EnhancedDetalharMaquina;
 const styles = StyleSheet.create({
     scrollContent: {
         padding: 17,
-        flexGrow: 1, 
+        flexGrow: 1,
     },
     botoesContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginTop: 15
-    }
+        marginTop: 15,
+    },
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo semitransparente
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 20,
+        padding: 25,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    botoesModal: {
+        flexDirection: 'row',
+        gap: 15,
+    },
+    modalTexto: {
+        fontSize: 20,
+        textAlign: 'center',
+    },
 })
