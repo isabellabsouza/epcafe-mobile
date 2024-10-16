@@ -48,46 +48,26 @@ export default function Auth() {
     async function signInWithEmail() {
         setLoading(true);
 
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: { session }, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
-        
+        setLoading(false);
+
         if (error) {
             Alert.alert('Erro', error.message);
             return;
         }
-        setLoading(false);
 
-        // if (session?.user) {
-        //     setSessao(session);
-        //     await fetchUsuario(session.user.id); // Continua apenas se a sessão for válida
-        //     router.replace('/selecionarUnidade');
-        // } else {
-        //     Alert.alert('Erro', 'Sessão não encontrada, tente novamente.');
-        // }
-    }
-
-    useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSessao(session)
-        })
-
-        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSessao(session)
-        })
-
-        return () => {
-            authListener.subscription.unsubscribe(); // Limpar listener ao desmontar
-        };
-    }, [])
-
-    useEffect(() => {
-        if (sessao && sessao.user) {
-          router.replace('/selecionarUnidade');
+        if (session?.user) {
+            setSessao(session);
+            await fetchUsuario(session.user.id); // Continua apenas se a sessão for válida
+            router.replace('/selecionarUnidade');
+        } else {
+            Alert.alert('Erro', 'Sessão não encontrada, tente novamente.');
         }
-    }, [sessao]);
+    }
 
     async function fetchUsuario(userId: string) {
         const { data, error } = await supabase
