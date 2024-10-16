@@ -2,12 +2,11 @@ import Botao from "@/components/Botao";
 import Input from "@/components/Input";
 import Titulo from "@/components/Titulo";
 import Toast from "@/components/Toast/Toast";
-import { useToast } from "@/components/Toast/ToastProvider";
 import database, { maquinasCollection } from "@/db";
 import Maquina from "@/db/model/Maquina";
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from "react";
-import { Button, ScrollView, StyleSheet, ToastAndroid } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 
 export default function CriarMaquina() {
     const { id } = useLocalSearchParams();
@@ -41,7 +40,7 @@ export default function CriarMaquina() {
                     const maquinaEncontrada = await maquinasCollection.find(String(id)); // Certifique-se de que o 'id' é uma string
                     setMaquina(maquinaEncontrada);
                     setNome(maquinaEncontrada.nome);  // Preencha o estado com os dados da máquina existente
-                    setVida_util(maquinaEncontrada.vida_util.toString());
+                    //setVida_util(maquinaEncontrada.vida_util.toString());
                 } catch (error) {
                     console.error("Erro ao buscar a máquina:", error);
                 }
@@ -60,7 +59,7 @@ export default function CriarMaquina() {
             await database.write(async () => {
                 await maquina.update((m) => {
                     m.nome = nome;
-                    m.vida_util = Number.parseInt(vida_util);
+                    //m.vida_util = Number.parseInt(vida_util);
 
                 });
             });
@@ -75,7 +74,7 @@ export default function CriarMaquina() {
             await database.write(async () => {
                 await maquinasCollection.create((novaMaquina) => {
                     novaMaquina.nome = nome;
-                    novaMaquina.vida_util = Number.parseInt(vida_util);
+                    //novaMaquina.vida_util = Number.parseInt(vida_util);
                 });
             });
 
@@ -120,22 +119,7 @@ export default function CriarMaquina() {
                 ))
             }
 
-            {/* <TextInput
-                placeholder="Nome"
-                onChangeText={setNome}
-                value={nome}
-            />
-
-            <TextInput
-                placeholder="Vida útil"
-                onChangeText={setVida_util}
-                value={vida_util}
-                keyboardType="numeric"
-            /> */}
-
-            <Botao nome="Salvar" onPress={salvarMaquina} />
-
-            {/* <Button onPress={() => {setToast(true)}} title="Show Toast" /> */}
+            <Botao nome="Salvar" onPress={salvarMaquina} disabled={false} />
 
             {toast && 
                 <Toast setToast={ setToast } 

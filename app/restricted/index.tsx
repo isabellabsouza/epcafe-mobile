@@ -5,6 +5,10 @@ import { mySync } from '@/db/sync';
 import { Stack } from 'expo-router';
 import Titulo from '@/components/Titulo';
 import Subtitulo from '@/components/Subtitulo';
+import database, { despesasFertilizantesCollection, fertilizantesCollection, maquinasCollection } from '@/db';
+import Fertilizante from '@/db/model/Fertilizante';
+import FormFactory from '@/components/FormFactory/FormFactory';
+import MontaObject from '@/components/FormFactory/MontaObject';
 
 const cards = [
   {
@@ -13,14 +17,49 @@ const cards = [
   },
   {
     titulo: "Despesas com Máquinas",
-    rota: 'restricted/maquinas'
+    rota: 'restricted/despesaMaquina'
   },
   {
     titulo: "Despesas com Fertilizantes e Defensivos",
     rota: 'restricted/maquinas'
   }
 ]
+
+const test = async () => {
+  // let filter = [
+  //   'id',
+  //   'created_at',
+  //   'updated_at',
+  //   'deleted_at',
+  // ]
+  // fertilizantesCollection
+  //   .query()
+  //   .fetch()
+  //   .then(f => {
+  //     let fields = f[0].asModel._raw;
+  //     console.log(Object.keys(fields).filter(key => !key.match(/^_.*/)).filter(key => !filter.includes(key)))
+  //     // for(let i = 0; i < fields)
+  //   })
+  // // console.log('testing 1')
+  // // await database.write(async () => {
+  // //   console.log('testing 2')
+  // //   await fertilizantesCollection.create(fertilizante => {
+  // //     fertilizante.nome = 'Fertilizante 1';
+  // //     fertilizante.tipo = 'Fertilizante';
+  // //   })
+  // // })
+  //   console.log(
+  //     fertilizantesCollection.schema.columns
+  //   )
+
+
+}
+
+
+
 export default function HomeScreen() {
+  
+
   return (
     <View style={styles.appContainer}>
 
@@ -48,5 +87,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-},
+  },
 })

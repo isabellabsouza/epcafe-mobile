@@ -1,14 +1,12 @@
-import ButtonLink from '@/components/ButtonLink';
-import { Text, View, StyleSheet, ScrollView} from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
+import Botao from '@/components/Botao';
+import CampoPesquisa from '@/components/CampoPesquisa';
 import CardLista from '@/components/CardLista';
+import Titulo from '@/components/Titulo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Titulo from '@/components/Titulo';
-import CampoPesquisa from '@/components/CampoPesquisa';
-import Botao from '@/components/Botao';
-import Card from '@/components/Card';
 
 export default function Maquinas() {
 
@@ -36,7 +34,7 @@ export default function Maquinas() {
             <ScrollView contentContainerStyle={styles.scrollContent} >
                 <Titulo titulo="Máquinas e Implementos" />
                 <CampoPesquisa />
-                <Botao nome="Adicionar" rota="/restricted/maquinas/criar"/>
+                <Botao nome="Adicionar" rota="/restricted/maquinas/criar" disabled={false}/>
                 <ScrollView 
                     contentContainerStyle={styles.containerFiltros} 
                     horizontal={true}
@@ -44,7 +42,7 @@ export default function Maquinas() {
                 >
                     {
                         filtrosOrdenacao.map(
-                            (item) => <Botao nome={item.nome} rota="/restricted/maquinas" key={item.nome} />
+                            (item) => <Botao nome={item.nome} rota="/restricted/maquinas" key={item.nome} disabled={false} />
                         )
                     }
                 </ScrollView>

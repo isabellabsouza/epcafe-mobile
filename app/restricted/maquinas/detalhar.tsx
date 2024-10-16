@@ -44,7 +44,8 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
             <Titulo titulo={maquina.nome} />
 
             <InfoLinha label="Nome" valor={maquina.nome} />
-            <InfoLinha label="Vida Útil" valor={maquina.vida_util + " anos"} />
+            <InfoLinha label="Vida Útil" valor={maquina.vidaUtil + " anos"} />
+            {/* <InfoLinha label="Tenant" valor={maquina._getRaw('tenant_id')} /> */}
 
             <Modal
                 animationType="slide"
@@ -67,10 +68,12 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
                                     excluir();
                                     setModalVisible(!modalVisible);
                                 }}
+                                disabled={false}
                             />
                             <Botao
                                 nome="Cancelar"
                                 onPress={() => setModalVisible(!modalVisible)}
+                                disabled={false}
                             />
                         </View>
                     </View>

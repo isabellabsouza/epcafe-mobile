@@ -1,36 +1,3 @@
-// import { View, Text, StyleSheet, Button } from "react-native";
-// import {Link, router} from 'expo-router';
-// import ButtonLink from "@/components/ButtonLink";
-// import Input from "@/components/Input";
-
-// export default function Login() {
-
-//     function handleLogin(){
-//         //... login logic
-//         router.replace('/restricted');
-//     }
-
-//     return (
-//         <View style={styles.container}>
-//             <Text> Digite as informações para entrar no aplicativo!</Text>
-//             <Input placeholder="Digite seu email" />
-//             <Input placeholder="Digite sua senha" />
-//             <Button onPress={handleLogin} title="Entrar" />
-//             {/* <ButtonLink route="/restricted" title="Entrar" /> */}
-//         </View>
-//     );
-// }
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         backgroundColor: '#fff',
-//         alignItems: 'center',
-//         justifyContent: 'center',
-//     }
-// })
-
-
 import React, { useEffect, useState } from 'react'
 import { Alert, StyleSheet, View, AppState, TextInput, Button } from 'react-native'
 import { supabase } from '@/lib/supabase'
@@ -39,13 +6,7 @@ import Titulo from '@/components/Titulo'
 import Input from '@/components/Input'
 import Botao from '@/components/Botao'
 import { Session } from '@supabase/supabase-js'
-
-
-
-function handleLogin() {
-    //login logic
-    router.replace('/selecionarUnidade');
-}
+import { firstSync } from '@/db/firstSync'
 
 export default function Auth() {
     const [email, setEmail] = useState('')
@@ -53,15 +14,59 @@ export default function Auth() {
     const [loading, setLoading] = useState(false)
     const [sessao, setSessao] = useState<Session | null>(null)
 
-    async function signInWithEmail() {
-        setLoading(true)
-        const { error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password,
-        })
+    // async function signInWithEmail() {
+    //     setLoading(true)
+    //     const { error } = await supabase.auth.signInWithPassword({
+    //         email: email,
+    //         password: password,
+    //     })
 
-        if (error) Alert.alert(error.message)
-        setLoading(false)
+    //     if (error) Alert.alert(error.message)
+    //     setLoading(false)
+    // }
+
+    // useEffect(() => {
+    //     supabase.auth.getSession().then(({ data: { session } }) => {
+    //         setSessao(session)
+    //     })
+
+    //     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+    //         setSessao(session)
+    //     })
+
+    //     return () => {
+    //         authListener.subscription.unsubscribe(); // Limpar listener ao desmontar
+    //     };
+    // }, [])
+
+    // useEffect(() => {
+    //     if (sessao && sessao.user) {
+    //       router.replace('/selecionarUnidade');
+    //     }
+    // }, [sessao]);
+
+    async function signInWithEmail() {
+        setLoading(true);
+
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        
+        if (error) {
+            Alert.alert('Erro', error.message);
+            return;
+        }
+        setLoading(false);
+
+        // if (session?.user) {
+        //     setSessao(session);
+        //     await fetchUsuario(session.user.id); // Continua apenas se a sessão for válida
+        //     router.replace('/selecionarUnidade');
+        // } else {
+        //     Alert.alert('Erro', 'Sessão não encontrada, tente novamente.');
+        // }
     }
 
     useEffect(() => {
@@ -84,6 +89,23 @@ export default function Auth() {
         }
     }, [sessao]);
 
+    async function fetchUsuario(userId: string) {
+        const { data, error } = await supabase
+            .from('usuario')
+            .select('tenant_id')
+            .eq('id', userId)
+            .single();
+
+        if (error) {
+            console.error('Erro ao buscar usuário:', error);
+            Alert.alert('Erro ao sincronizar dados');
+            return;
+        }
+
+        // Executa a primeira sincronização com o tenant_id obtido
+        await firstSync(data.tenant_id);
+    }
+
 
     return (
         <View style={styles.container}>
@@ -102,29 +124,7 @@ export default function Auth() {
                 value={password}
                 onChangeText={setPassword}
             />
-            {/* <View style={[styles.verticallySpaced, styles.mt20]}>
-        <TextInput
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          placeholder="email@address.com"
-          autoCapitalize={'none'}
-        />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <TextInput
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={true}
-          placeholder="Password"
-          autoCapitalize={'none'}
-        />
-      </View>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button title="Sign in" disabled={loading} onPress={handleLogin} />
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Button title="Sign up" disabled={loading} onPress={() => signUpWithEmail()} />
-      </View> */}
+
             <Botao nome="Entrar" disabled={loading} onPress={() => signInWithEmail()} />
         </View>
     )

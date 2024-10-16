@@ -5,9 +5,9 @@ interface BotaoProps {
     nome: string,
     rota?: string;  //rota é opcional
     onPress?: () => void;
-    disabled: boolean;
+    disabled?: boolean;
 }
-export default function Botao({ nome, rota, onPress, disabled }: BotaoProps) {
+export default function Botao({ nome, rota, onPress, disabled=false }: BotaoProps) {
 
     const handlePress = () => {
         if (onPress) {
