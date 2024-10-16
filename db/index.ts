@@ -62,3 +62,5 @@ export const notasCollection = database.get<NotaFiscal>('nota_fiscal')
 export const despesasMaquinasCollection = database.get<DespesaMaquina>('despesa_maquina')
 export const despesasFertilizantesCollection = database.get<DespesaFertilizante>('despesa_fertilizante')
 export const despesasFerTalhoesCollection = database.get<DespesaFerTalhao>('despesa_fer_talhao')
+
+export const getTenant = database.get<Tenant>('tenant').find('eedc365d-be1c-4da7-9cac-38e1c38315ad')

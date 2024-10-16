@@ -1,9 +1,7 @@
 import { Collection } from "@nozbe/watermelondb";
-import Input from "../Input";
-import database from "@/db";
-import { useState } from "react";
-import MontaObject from "./MontaObject";
 import FormInput from "./FormInput";
+import MontaObject from "./MontaObject";
+
 
 class FormFactory {
     static createForm(collection: Collection<any>, montaObject: MontaObject, columnFilter: string[] = []){
@@ -37,9 +35,11 @@ class FormFactory {
         switch(column.type){
             case 'string':
             case 'number':
-                // if(column.name.toLowerCase().includes('data'))
+                if(column.name.toLowerCase().includes('data')){
+                    return <FormInput key={column.name} name={column.name} montaObject={montaObject} tipo="data" />
+                }
             default:
-                return <FormInput key={column.name} name={column.name} montaObject={montaObject} />
+                return <FormInput key={column.name} name={column.name} montaObject={montaObject} tipo="texto" />
         }
     }
 

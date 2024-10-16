@@ -1,19 +1,19 @@
-import { Button, Text, View, StyleSheet } from 'react-native';
+import { Button, StyleSheet, View } from 'react-native';
 
 import Card from '@/components/Card';
-import { mySync } from '@/db/sync';
-import { Stack } from 'expo-router';
-import Titulo from '@/components/Titulo';
 import Subtitulo from '@/components/Subtitulo';
-import database, { despesasFertilizantesCollection, fertilizantesCollection, maquinasCollection } from '@/db';
-import Fertilizante from '@/db/model/Fertilizante';
-import FormFactory from '@/components/FormFactory/FormFactory';
-import MontaObject from '@/components/FormFactory/MontaObject';
+import Titulo from '@/components/Titulo';
+import { mySync } from '@/db/sync';
+
 
 const cards = [
   {
     titulo: 'Máquinas e Implementos',
     rota: 'restricted/maquinas'
+  },
+  {
+    titulo: 'Fertilizantes e Defensivos',
+    rota: 'restricted/fertilizantes'
   },
   {
     titulo: "Despesas com Máquinas",
@@ -55,10 +55,7 @@ const test = async () => {
 
 }
 
-
-
 export default function HomeScreen() {
-  
 
   return (
     <View style={styles.appContainer}>
@@ -73,6 +70,7 @@ export default function HomeScreen() {
         }
       </View>
       <Button title='sync' onPress={mySync} />
+      
     </View>
   );
 }

@@ -3,6 +3,7 @@ import Model from "@nozbe/watermelondb/Model";
 
 export default class Tenant extends Model {
     static table = 'tenant';
+    
 
     @text('tenant') tenant!: string;
     @text('tipo_plano') tipoPlano!: string;

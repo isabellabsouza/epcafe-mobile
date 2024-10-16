@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import Input from "../Input";
 import FormFactory from "./FormFactory";
 import MontaObject from "./MontaObject";
+import InputData from "../InputData";
 
 interface props {
     name: string,
-    montaObject: MontaObject
+    montaObject: MontaObject,
+    tipo: string
 }
-export default function FormInput({ name, montaObject }: props) {
+export default function FormInput({ name, montaObject, tipo }: props) {
     
     const [value, setValue] = useState('');
 
@@ -27,7 +29,13 @@ export default function FormInput({ name, montaObject }: props) {
         setValue(text);
     }
 
-    return <Input key={name} label={label} placeholder={label} value={value} onChangeText={onInput} />
+    if(tipo === 'data'){
+        return <InputData label={label} placeholder={label} value={value} onChangeText={onInput} />
+    } else {
+
+        return <Input key={name} label={label} placeholder={label} value={value} onChangeText={onInput} />
+    }
+
 
 
 }

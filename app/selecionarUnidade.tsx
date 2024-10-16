@@ -88,6 +88,8 @@ import { FlatList, Text, StyleSheet, View, TouchableOpacity, Alert, Button } fro
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import database, { unidadesCollection } from "@/db"; // Coleção do WatermelonDB
 import Unidade from "@/db/model/Unidade";
+import { Q } from "@nozbe/watermelondb";
+import { supabase } from "@/lib/supabase";
 
 export default function SelecionarUnidade() {
   const [unidades, setUnidades] = useState<Unidade[]>([]); // Estado para armazenar as unidades
@@ -96,8 +98,10 @@ export default function SelecionarUnidade() {
   // Função para buscar as unidades do WatermelonDB
   useEffect(() => {
     async function fetchUnidades() {
+        //supabase.auth.getSession
       try {
-        const resultado = await unidadesCollection.query().fetch();
+        const resultado = await unidadesCollection.query().fetch(); // Busca todas as unidades
+            
         console.log("Unidades carregadas:", resultado);
         setUnidades(resultado); // Atualiza o estado com os dados
       } catch (error) {
@@ -109,7 +113,7 @@ export default function SelecionarUnidade() {
   }, []);
 
   function escolherUnidade(unidade: Unidade) {
-    AsyncStorage.setItem("unidade", unidade.nome)
+    AsyncStorage.setItem("unidade", unidade.id)
       .then(() => {
         console.log("Unidade selecionada:", unidade.nome);
         router.push("/restricted");

@@ -1,12 +1,24 @@
-import { TextInput, Text, StyleSheet } from "react-native";
+import { TextInput, Text, StyleSheet, KeyboardTypeOptions } from "react-native";
 
 interface InputProps {
     label: string,
     placeholder: string,
     value: string;  // Valor atual do campo
-    onChangeText: (text: string) => void; // Função para atualizar o valor
+    onChangeText: (text: string) => void;
+    onPress?: () => void;
+    keyboard?: KeyboardTypeOptions,
+    showKeyboard?: boolean,
 }
-export default function Input({label, placeholder, value, onChangeText}: InputProps) {
+export default function Input({
+        label, 
+        placeholder, 
+        value, 
+        onChangeText, 
+        onPress, 
+        keyboard='default', 
+        showKeyboard=true,
+    }: InputProps) {
+
     return (
         <>
             <Text style={styles.label}>{label}</Text>
@@ -15,6 +27,10 @@ export default function Input({label, placeholder, value, onChangeText}: InputPr
                 value={value}
                 onChangeText={onChangeText}
                 style={styles.campoInput}
+                onPress={onPress}
+                keyboardType={keyboard}
+                showSoftInputOnFocus={showKeyboard}
+                autoComplete="off"
             />
         </>
     )
