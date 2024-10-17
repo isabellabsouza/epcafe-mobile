@@ -48,22 +48,12 @@ function detalharFertilizante({ fertilizante }: { fertilizante: Fertilizante }) 
             <InfoLinha label="Nome" valor={fertilizante.nome} />
             <InfoLinha label="Vida Útil" valor={fertilizante.tipo} />
 
-            {/* {modalVisible &&
-                <ModalConfirmacao />
-
-            } */}
-
             {toast &&
                 <Toast setToast={setToast}
                     mensagem={mensagem}
                     gravidade={gravidade}
                 />
             }
-
-            <View style={styles.botoesContainer}>
-                <Botao nome="Editar" rota={`/restricted/fertilizantes/criar?id=${id}`} />
-                <Botao nome="Excluir" onPress={() => setModalVisible(true)} />
-            </View>
         </ScrollView>
     );
 }
@@ -96,10 +86,5 @@ const styles = StyleSheet.create({
     scrollContent: {
         padding: 17,
         flexGrow: 1,
-    },
-    botoesContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 15,
-    },
+    }
 })

@@ -15,7 +15,7 @@ export default class DespesaMaquina extends Model {
     @field('preco_unitario_combustivel') precoUnitarioCombustivel!: number;
     @field('valor_total') valorTotal!: number;
     @field('unidade_horas') unidadeHoras!: boolean;
-    @field('tempo_trabalho') tempoTrabalho!: number;
+    @field('tempo_trabalhado') tempoTrabalhado!: number;
     @relation('maquina', 'maquina_id') maquina!: Maquina;
     @relation('tenant', 'tenant_id') tenant!: Tenant;
     @relation('unidade', 'unidade_id') unidade!: Unidade;

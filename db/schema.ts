@@ -97,7 +97,7 @@ export default appSchema({
                 { name: 'preco_unitario_combustivel', type: 'number' },
                 { name: 'valor_total', type: 'number' },
                 { name: 'unidade_horas', type: 'boolean' },
-                { name: 'tempo_trabalho', type: 'number' },
+                { name: 'tempo_trabalhado', type: 'number' },
                 { name: 'maquina_id', type: 'string'},
                 { name: 'tenant_id', type: 'string' },
                 { name: 'unidade_id', type: 'string'},

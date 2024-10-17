@@ -1,8 +1,7 @@
 import { Stack } from "expo-router";
 
-export default function RestrictedLayout() {
+export default function DespesasMaquinasLayout() {
     return (
-
         <Stack screenOptions={{headerShown:true}} >
             
         </Stack>

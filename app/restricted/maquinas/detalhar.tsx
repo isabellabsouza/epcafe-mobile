@@ -12,6 +12,7 @@ import InfoLinha from '@/components/InfoLinha';
 import Toast from '@/components/Toast/Toast';
 import TipoInsumoMecanico from '@/utils/enums/TipoInsumoMecanico';
 import TipoMecanico from '@/utils/enums/TipoMecanico';
+import TipoCombustivel from '@/utils/enums/TipoCombustivel';
 
 
 function detalharMaquina({ maquina }: { maquina: Maquina }) {
@@ -90,17 +91,18 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
                 </View>
             </Modal>
 
+            
+
+            <View style={styles.botoesContainer}>
+                <Botao nome="Editar" rota={`/restricted/maquinas/criar?id=${id}`} />
+                <Botao nome="Excluir" onPress={() => setModalVisible(true)} />
+            </View>
             {toast && 
                 <Toast setToast={ setToast } 
                     mensagem={mensagem} 
                     gravidade={gravidade} 
                 />
             }
-
-            <View style={styles.botoesContainer}>
-                <Botao nome="Editar" rota={`/restricted/maquinas/criar?id=${id}`} />
-                <Botao nome="Excluir" onPress={() => setModalVisible(true)} />
-            </View>
         </ScrollView>
     );
 }

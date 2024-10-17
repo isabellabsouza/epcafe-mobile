@@ -22,7 +22,7 @@ export default function CriarMaquina() {
     const { id } = useLocalSearchParams();
 
     const [maquina, setMaquina] = useState<Maquina>();
-    const titulo = id ? "Editar Máquina" : "Adicionar Máquina ou Implemento";
+    const titulo = id ? "Editar Máquina ou Implemento" : "Adicionar Máquina ou Implemento";
 
     // variáveis de estado para exibir toast
     const [toast, setToast] = useState(false);
@@ -163,18 +163,20 @@ export default function CriarMaquina() {
             // Se a máquina já existe, atualizar
             await database.write(async () => {
                 await maquina.update((m) => {
-                    // m.nome = values.getValue('nome');
-                    // m.consumoMedio = values.getValue('consumo_medio');
-                    // m.dataCompra = values.getValue('data_compra');
-                    // m.modelo = values.getValue('modelo');
-                    // m.potencia = values.getValue('potencia');
-                    // m.tipo = values.getValue('tipo');
-                    // m.tipoCalculo = values.getValue('tipo_calculo');
-                    // m.tipoCombustivel = values.getValue('tipo_combustivel');
-                    // m.tipoInsumo = values.getValue('tipo_insumo');
-                    // m.valor = values.getValue('valor');
-                    // m.vidaUtil = values.getValue('vida_util');
-                    //TODO: pegar tenantId do usuário logado supabase.auth
+                    m.nome = nome;
+                    m.consumoMedio = parseFloat(consumoMedio);
+                    m.dataCompra = new Date(dataCompra);
+                    m.modelo = modelo;
+                    m.potencia = parseFloat(potencia);
+                    m.tipo = tipo.value;
+                    m.tipoCalculo = tipoCalculo.value;
+                    m.tipoCombustivel = tipoCombustivel.value;
+                    m.tipoInsumo = tipoInsumo.value;
+                    m.valor = parseFloat(valor);
+                    m.vidaUtil = parseInt(vidaUtil);
+                    //@ts-ignore
+                    m.tenant.set(tenant);
+                    console.log('maquina editada', m)
 
                 });
             }).then(() => {

@@ -1,8 +1,10 @@
 enum TipoCombustivel {
-    ENERGIA_ELETRICA = 'Energia elétrica',
+    ENERGIA_ELETRICA = 'Energia Elétrica',
 	DIESEL = 'Diesel',
 	GASOLINA = 'Gasolina',
 	ETANOL = 'Etanol',
-	NENHUM = 'Nenhum'
+	NENHUM = 'Nenhum',
+	
 }
+
 export default TipoCombustivel;
