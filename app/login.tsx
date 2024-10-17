@@ -25,25 +25,25 @@ export default function Auth() {
     //     setLoading(false)
     // }
 
-    // useEffect(() => {
-    //     supabase.auth.getSession().then(({ data: { session } }) => {
-    //         setSessao(session)
-    //     })
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSessao(session)
+        })
 
-    //     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-    //         setSessao(session)
-    //     })
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSessao(session)
+        })
 
-    //     return () => {
-    //         authListener.subscription.unsubscribe(); // Limpar listener ao desmontar
-    //     };
-    // }, [])
+        return () => {
+            authListener.subscription.unsubscribe(); // Limpar listener ao desmontar
+        };
+    }, [])
 
-    // useEffect(() => {
-    //     if (sessao && sessao.user) {
-    //       router.replace('/selecionarUnidade');
-    //     }
-    // }, [sessao]);
+    useEffect(() => {
+        if (sessao && sessao.user) {
+          router.replace('/selecionarUnidade');
+        }
+    }, [sessao]);
 
     async function signInWithEmail() {
         setLoading(true);

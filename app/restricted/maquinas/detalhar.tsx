@@ -10,12 +10,16 @@ import Titulo from '@/components/Titulo';
 import Botao from '@/components/Botao';
 import InfoLinha from '@/components/InfoLinha';
 import Toast from '@/components/Toast/Toast';
+import TipoInsumoMecanico from '@/utils/enums/TipoInsumoMecanico';
+import TipoMecanico from '@/utils/enums/TipoMecanico';
 
 
 function detalharMaquina({ maquina }: { maquina: Maquina }) {
 
     const { id } = useLocalSearchParams();
     const [modalVisible, setModalVisible] = useState(false);
+
+    //variáveis para o toast
     const [toast, setToast] = useState(false);
     const [gravidade, setGravidade] = useState('');
     const [mensagem, setMensagem] = useState('');
@@ -24,9 +28,7 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
         return <Text>Máquina não encontrada.</Text>;
     }
 
-    function voltar() {
-        router.replace('/restricted');
-    }
+    console.log("Maquina:", maquina);
 
     const excluir = async () => {
         await database.write(async () => {
@@ -44,8 +46,16 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
             <Titulo titulo={maquina.nome} />
 
             <InfoLinha label="Nome" valor={maquina.nome} />
+            <InfoLinha label="Tipo" valor={TipoMecanico.getNome(maquina.tipoInsumo, maquina.tipo)} />
+            <InfoLinha label="Modelo" valor={maquina.modelo} />
+            <InfoLinha label="Data de compra" valor={new Date(maquina.dataCompra).toLocaleDateString()} />
+            <InfoLinha label="Consumo Médio" valor={maquina.consumoMedio} />
+            <InfoLinha label="Potência" valor={maquina.potencia + " cv"} />
+            <InfoLinha label="Tipo de cálculo" valor={maquina.tipoCalculo} />
+            <InfoLinha label="Tipo de combustível" valor={maquina.tipoCombustivel} />
+            <InfoLinha label="Tipo de insumo" valor={maquina.tipoInsumo} />
+            <InfoLinha label="Valor" valor={"R$ " + maquina.valor} />
             <InfoLinha label="Vida Útil" valor={maquina.vidaUtil + " anos"} />
-            {/* <InfoLinha label="Tenant" valor={maquina._getRaw('tenant_id')} /> */}
 
             <Modal
                 animationType="slide"

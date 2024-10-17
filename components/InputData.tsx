@@ -26,6 +26,7 @@ export default function InputData({ label, placeholder, value, onChangeText }: I
         onChangeText(formatarData(date)); 
         setIsOpen(false); 
     };
+    //value={dataSelecionada ? formatarData(dataSelecionada) : ''}
     
     return (
         <>
@@ -33,14 +34,14 @@ export default function InputData({ label, placeholder, value, onChangeText }: I
             <Input
                 label={label}
                 placeholder={placeholder}
-                value={dataSelecionada ? formatarData(dataSelecionada) : ''}
+                value={dataSelecionada}
                 onChangeText={onChangeText}
                 onPress={() => setIsOpen(!isOpen)}
                 showKeyboard={false}
             />
             {isOpen && (
                 <DatePicker
-                    onDateChange={handleDateChange}
+                    onDateChange={setDataSelecionada}
                     mode='calendar'
                     options={{
                         backgroundColor: '#ebe9e9',

@@ -7,15 +7,13 @@ import InputData from "../InputData";
 interface props {
     name: string,
     montaObject: MontaObject,
-    tipo: string
+    tipo: string,
+    valor?: string
 }
-export default function FormInput({ name, montaObject, tipo }: props) {
+export default function FormInput({ name, montaObject, tipo, valor}: props) {
     
     const [value, setValue] = useState('');
-
-    useEffect(() => {
-        montaObject.add(name, '');
-    },[])
+    const [firstLoad, setFirstLoad] = useState(true);
 
     const capitalize = (str: string) => {
         return str.charAt(0).toUpperCase() + str.slice(1);
@@ -25,9 +23,22 @@ export default function FormInput({ name, montaObject, tipo }: props) {
                     .map(word => capitalize(word)).join(' ');
 
     const onInput = (text: string) => {
-        montaObject.add(name, text);
+        console.log(tipo)
+        if(tipo == 'number'){
+            montaObject.add(name, parseInt(text));
+        }else{
+            montaObject.add(name, text);
+        }
         setValue(text);
     }
+
+
+    setTimeout(() => {
+        if(firstLoad){
+            setFirstLoad(false);
+            onInput(valor ?? '');
+        }
+    }, 100);
 
     if(tipo === 'data'){
         return <InputData label={label} placeholder={label} value={value} onChangeText={onInput} />

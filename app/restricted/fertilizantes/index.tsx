@@ -1,6 +1,6 @@
 import Botao from "@/components/Botao";
 import CampoPesquisa from "@/components/CampoPesquisa";
-import CardLista from "@/components/CardLista";
+import CardLista from "@/components/fertilizantes/ListaCards";
 import Titulo from "@/components/Titulo";
 import { AntDesign } from "@expo/vector-icons";
 import { router, Stack } from "expo-router";

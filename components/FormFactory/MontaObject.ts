@@ -43,6 +43,10 @@ export default class MontaObject {
         return this.tupla.map(t => Object.values(t)[0]);
     }
 
+    // public setValues() {
+    //     this.tupla.map
+    // }
+
     public getTupla() {
         return this.tupla;
     }

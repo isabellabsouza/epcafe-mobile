@@ -1,10 +1,15 @@
-import { Collection } from "@nozbe/watermelondb";
+import { Collection, Model } from "@nozbe/watermelondb";
 import FormInput from "./FormInput";
 import MontaObject from "./MontaObject";
 
 
 class FormFactory {
-    static createForm(collection: Collection<any>, montaObject: MontaObject, columnFilter: string[] = []){
+    static createForm(collection: Collection<any>, montaObject: MontaObject, columnFilter: string[] = [], object: Model | null = null){
+
+        if(object){
+            console.log('Recebido object, form de edição')
+            console.log(object._raw)
+        }
 
         const hardFilter = [
             'id',
@@ -13,7 +18,7 @@ class FormFactory {
             'deleted_at',
         ];      
         
-        console.log(collection.schema.columns);
+        // console.log(collection.schema.columns);
         let columns = collection
                         .schema
                         .columnArray
@@ -23,15 +28,21 @@ class FormFactory {
         if(columnFilter.length > 0)
             columns = columns.filter(column => !columnFilter.includes(column.name)); // filtrando as colunas passadas por parâmetro
 
-        for(let i = 0; i < columns.length; i++){
-            console.log(columns[i].name, columns[i].type);
-        }
-        return columns.map(column => FormFactory.createInput(column, montaObject));
+        // for(let i = 0; i < columns.length; i++){
+        //     console.log(columns[i].name, columns[i].type);
+        // }
+        return columns.map(column => FormFactory.createInput(column, montaObject, object));
             
     }
 
-    private static createInput(column: {name: string, type: string}, montaObject: MontaObject){
-                        
+    private static createInput(column: {name: string, type: string}, montaObject: MontaObject, object: Model | null = null){
+        
+        let valor = '';
+        if(object){
+            valor = object._getRaw(column.name)?.valueOf().toString() ?? '';
+            console.log('getting raw value', object)
+        }
+
         switch(column.type){
             case 'string':
             case 'number':
@@ -39,7 +50,7 @@ class FormFactory {
                     return <FormInput key={column.name} name={column.name} montaObject={montaObject} tipo="data" />
                 }
             default:
-                return <FormInput key={column.name} name={column.name} montaObject={montaObject} tipo="texto" />
+                return <FormInput key={column.name} name={column.name} montaObject={montaObject} valor={valor} tipo={column.type} />
         }
     }
 
