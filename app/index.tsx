@@ -1,5 +1,5 @@
 import Botao from '@/components/Botao';
-import ButtonLink from '@/components/ButtonLink';
+import Titulo from '@/components/Titulo';
 import { supabase } from '@/lib/supabase';
 import { Image, StyleSheet, Text, View } from 'react-native';
  
@@ -11,15 +11,17 @@ export default function App() {
     return (
         
         <View style={styles.container}>
-            <Text>Bem Vindo ao èpCafé! </Text>
+            <Titulo titulo="èpCafé" />
 
             <Image 
-                source={require('../assets/logo.png')}     
+                source={require('../assets/logo.png')}
+                style={styles.logo}
+                resizeMode="contain"     
             />
 
             
             <Botao rota="/login" nome="Fazer Login" />
-            <Botao nome="Sair" onPress={logOut} disabled={false} />
+            {/* <Botao nome="Sair" onPress={logOut} disabled={false} /> */}
         </View>
     );
 }
@@ -30,6 +32,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    logo: {
+        width: 120,
+        height: 120,
+        marginVertical: 30,
     }
 })
 
