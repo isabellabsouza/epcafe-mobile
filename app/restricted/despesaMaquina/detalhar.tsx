@@ -40,8 +40,13 @@ function detalharDespesaMaquina({ despesaMaquina }: { despesaMaquina: DespesaMaq
         <ScrollView contentContainerStyle={styles.scrollContent}>
             <Titulo titulo="Despesa" />
 
-            <InfoLinha label="ID" valor={despesaMaquina.id} />
             <InfoLinha label="Data" valor={despesaMaquina.data.toLocaleDateString()} />
+            <InfoLinha label="Distância Trabalhada" valor={String(despesaMaquina.distanciaTrabalhada)} />
+            <InfoLinha label="Fator de Potência" valor={despesaMaquina.fatorPotencia} />
+            <InfoLinha label="Preço do Combustível" valor={despesaMaquina.precoUnitarioCombustivel} />
+            <InfoLinha label="Unidade em Horas" valor={despesaMaquina.unidadeHoras ? 'Sim' : 'Não'} />
+            <InfoLinha label="Tempo Trabalhado" valor={String(despesaMaquina.tempoTrabalhado)} />
+            <InfoLinha label="Máquina" valor={despesaMaquina.maquina.id} />
             <InfoLinha label="Valor Total" valor={despesaMaquina.valorTotal} />
 
             <Modal

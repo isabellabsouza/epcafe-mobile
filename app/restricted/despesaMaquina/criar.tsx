@@ -10,17 +10,84 @@ import DespesaMaquina from "@/db/model/DespesaMaquina";
 import Maquina from "@/db/model/Maquina";
 import Tenant from "@/db/model/Tenant";
 import FatorPotencia from "@/utils/enums/FatorPotencia";
+import TipoCalculo from "@/utils/enums/TipoCalculo";
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { RadioButtonProps } from "react-native-radio-buttons-group";
+import RadioGroup, { RadioButtonProps } from "react-native-radio-buttons-group";
 
 export default function CriarDespesaMaquina() {
+    function converterHoraParaMinuto(tempo: number) {
+        return tempo * 60;
+    }
+    
+    function calcularValorTotal(despesaMaquina: any) {
+        console.log("Entrou")
+        let valor = 0;
+        
+        console.log("tipoCalculo: ", maquina.TipoCalculo)
+        console.log("consumoMedio: ", maquina.consumoMedio)
+        console.log("potencia: ", fatorPotencia.valor)
+        console.log("Unidade Horas: ", selectedId)
+        //const { tipoCalculo, potencia, consumoMedio } = despesaMaquina.maquina;
+        const tipoCalculo = maquina.tipoCalculo;
+        const consumoMedio = maquina.consumoMedio;
+        const potencia = maquina.potencia;
+        const tempoConvertido = selectedId === '0'
+            ? converterHoraParaMinuto(parseFloat(tempoTrabalhado))
+            : parseFloat(tempoTrabalhado);
+    
+        switch (tipoCalculo) {
+            case 'TRATOR':
+                valor = (
+                    potencia *
+                    (fatorPotencia.valor / 100) *
+                    0.15 *
+                    parseFloat(precoUnitarioCombustivel) *
+                    (tempoConvertido / 60)
+                );
+                break;
+    
+            case 'NAO_TRATOR':
+                valor = (
+                    potencia *
+                    0.15 *
+                    parseFloat(precoUnitarioCombustivel) *
+                    (tempoConvertido / 60)
+                );
+                break;
+    
+            case 'ENERGIA_ELETRICA':
+                valor = (
+                    potencia *
+                    0.735 *
+                    parseFloat(precoUnitarioCombustivel) *
+                    (tempoConvertido / 60)
+                );
+                break;
+    
+            case 'DISTANCIA':
+                valor = (
+                    parseFloat(distanciaTrabalhada) /
+                    consumoMedio *
+                    parseFloat(precoUnitarioCombustivel)
+                );
+                break;
+    
+            default:
+                valor = 0;
+                break;
+        }
+    
+        return Number(valor.toFixed(2));
+    }
+    
 
     const { id } = useLocalSearchParams();
 
     const [despesaMaquina, setDespesaMaquina] = useState<DespesaMaquina>();
     const titulo = id ? "Editar Despesa com Máquina" : "Adicionar Despesa com Máquina";
+    const [selectedId, setSelectedId] = useState<string | undefined>();
 
     // variáveis de estado para exibir toast
     const [toast, setToast] = useState(false);
@@ -33,7 +100,7 @@ export default function CriarDespesaMaquina() {
     const [fatorPotencia, setFatorPotencia] = useState('');
     const [precoUnitarioCombustivel, setPrecoUnitarioCombustivel] = useState('');
     const [valorTotal, setValorTotal] = useState('');
-    const [unidadeHoras, setUnidadeHoras] = useState('');
+    const [unidadeHoras, setUnidadeHoras] = useState<boolean>(false);
     const [tempoTrabalhado, setTempoTrabalhado] = useState('');
     const [maquina, setMaquina] = useState('');
     const [unidade, setUnidade] = useState<any>();
@@ -48,7 +115,8 @@ export default function CriarDespesaMaquina() {
             if (typeof item === 'object' && 'description' in item) {
                 return {
                     label: item.description,
-                    value: key
+                    value: key,
+                    valor: item.value,
                 };
             }
             return null;
@@ -102,7 +170,10 @@ export default function CriarDespesaMaquina() {
                 const maquinas = maquinasEncontradas.map((maquina) => {
                     return {
                         label: maquina.nome,
-                        value: maquina.id
+                        value: maquina.id,
+                        tipoCalculo: maquina.tipoCalculo,
+                        consumoMedio: maquina.consumoMedio,
+                        potencia: maquina.potencia,
                     }
                 })
                 setMaquinas(maquinas);
@@ -127,6 +198,58 @@ export default function CriarDespesaMaquina() {
         fetchTenant();
     }, []);
 
+    // const salvarDespesaMaquina = async () => {
+    //     const novaDespesa: {
+    //         data: Date | undefined;
+    //         distanciaTrabalhada: number;
+    //         fatorPotencia: number;
+    //         precoUnitarioCombustivel: number;
+    //         unidadeHoras: boolean;
+    //         tempoTrabalhado: number;
+    //         maquina: any;
+    //         valorTotal?: number;
+    //     } = {
+    //         data,
+    //         distanciaTrabalhada: parseFloat(distanciaTrabalhada) || 0,
+    //         fatorPotencia: parseFloat(fatorPotencia) || 0,
+    //         precoUnitarioCombustivel: parseFloat(precoUnitarioCombustivel) || 0,
+    //         unidadeHoras: unidadeHoras === 'true',
+    //         tempoTrabalhado: parseFloat(tempoTrabalhado) || 0,
+    //         maquina: maquinas.find(m => m.value === maquina),
+    //     };
+    
+    //     // Calcular o valor total
+    //     const valorCalculado = calcularValorTotal(novaDespesa);
+    //     novaDespesa.valorTotal = valorCalculado;
+    
+    //     try {
+    //         if (despesaMaquina) {
+    //             // Atualizar despesa existente
+    //             await database.write(async () => {
+    //                 await despesaMaquina.update((d) => {
+    //                     Object.assign(d, novaDespesa);
+    //                 });
+    //             });
+    //         } else {
+    //             // Criar nova despesa
+    //             await database.write(async () => {
+    //                 await despesasMaquinasCollection.create((novaDespesaDB) => {
+    //                     Object.assign(novaDespesaDB, novaDespesa);
+    //                 });
+    //             });
+    //         }
+    
+    //         setGravidade('sucesso');
+    //         setMensagem('Despesa salva com sucesso!');
+    //     } catch (error) {
+    //         setGravidade('erro');
+    //         setMensagem('Erro ao salvar a despesa');
+    //         console.error('Erro ao salvar a despesa:', error);
+    //     } finally {
+    //         setToast(true);
+    //     }
+    // };
+    
 
     //salvar despesa maquina
     const salvarDespesaMaquina = async () => {
@@ -135,7 +258,7 @@ export default function CriarDespesaMaquina() {
             // Se a despesa já existe, atualizar
             await database.write(async () => {
                 await despesaMaquina.update((d) => {
-                    d.data = data!; //FIXME: data não pode ser nula
+                    d.data = data!;
                     d.distanciaTrabalhada = parseFloat(distanciaTrabalhada);
                     d.fatorPotencia = fatorPotencia;
                     d.precoUnitarioCombustivel = parseFloat(precoUnitarioCombustivel);
@@ -163,6 +286,8 @@ export default function CriarDespesaMaquina() {
 
         } else {
             // Se a despesa não existe, criar
+            let valorTotal = calcularValorTotal(despesaMaquina);
+            console.log('valorTotal', valorTotal);
             await database.write(async () => {
                 await despesasMaquinasCollection.create((novaDespesa) => {
 
@@ -176,7 +301,7 @@ export default function CriarDespesaMaquina() {
                     novaDespesa.unidadeHoras = unidadeHoras === 'true';
                     novaDespesa.tempoTrabalhado = parseFloat(tempoTrabalhado);
                     novaDespesa.distanciaTrabalhada = parseFloat(distanciaTrabalhada);
-                    novaDespesa.valorTotal = 1000;
+                    novaDespesa.valorTotal = valorTotal;
                     //@ts-ignore
                     //novaDespesa.tenant.set(tenant);
                     console.log('novaDespesa', novaDespesa);
@@ -244,9 +369,20 @@ export default function CriarDespesaMaquina() {
                 label="Fator de potência"
             />
 
-            <RadioSelect
+            {/* <RadioSelect
                 label="Unidade de tempo"
                 dados={opcaoUnidadeTempo}
+                onChange={(value) => {
+                    const isHoras = value === 'Horas'; // Verifica se a opção é "Horas"
+                    setUnidadeHoras(isHoras); // Armazena 'true' ou 'false' como string
+                }}
+            /> */}
+
+            <RadioGroup
+                radioButtons={opcaoUnidadeTempo}
+                onPress={setSelectedId}
+                selectedId={selectedId}
+                containerStyle={styles.radioContainer}
             />
 
             <Input
@@ -254,6 +390,7 @@ export default function CriarDespesaMaquina() {
                 placeholder="Informe o tempo trabalhado"
                 value={tempoTrabalhado}
                 onChangeText={(text) => setTempoTrabalhado(text)}
+                keyboard="numeric"
             />
 
             <Input
@@ -261,6 +398,7 @@ export default function CriarDespesaMaquina() {
                 placeholder="Informe a distância trabalhado"
                 value={distanciaTrabalhada}
                 onChangeText={(text) => setDistanciaTrabalhada(text)}
+                keyboard="numeric"
             />
 
 
@@ -283,4 +421,10 @@ const styles = StyleSheet.create({
         padding: 17,
         flexGrow: 1,
     },
+    radioContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        gap: 20,
+        marginVertical: 20
+    }
 })

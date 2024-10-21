@@ -6,19 +6,19 @@ interface RadioSelectProps {
     label: string;
     dados: RadioButtonProps[];
 }
-export default function RadioSelect({label, dados}: RadioSelectProps) {
+export default function RadioSelect({ label, dados }: RadioSelectProps) {
 
     const [selectedId, setSelectedId] = useState<string | undefined>();
 
     return (
         <>
-        <Text style={styles.label}>{label}</Text>
-        <RadioGroup 
-            radioButtons={dados} 
-            onPress={setSelectedId}
-            selectedId={selectedId}
-            containerStyle={styles.radioContainer}
-        />
+            <Text style={styles.label}>{label}</Text>
+            <RadioGroup
+                radioButtons={dados}
+                onPress={setSelectedId}
+                selectedId={selectedId}
+                containerStyle={styles.radioContainer}
+            />
         </>
     );
 }

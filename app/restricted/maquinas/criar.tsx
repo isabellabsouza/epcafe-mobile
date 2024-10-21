@@ -17,7 +17,6 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
 export default function CriarMaquina() {
-    const montaObject = new MontaObject();
 
     const { id } = useLocalSearchParams();
 
@@ -200,21 +199,6 @@ export default function CriarMaquina() {
 
             await database.write(async () => {
                 await maquinasCollection.create((novaMaquina) => {
-                    //let values = montaObject;
-                    // console.log('tupla', values.getTupla())
-
-                    // novaMaquina.nome = values.getValue('nome');
-                    // novaMaquina.consumoMedio = values.getValue('consumo_medio');
-                    // novaMaquina.dataCompra = values.getValue('data_compra');
-                    // novaMaquina.modelo = values.getValue('modelo');
-                    // novaMaquina.potencia = values.getValue('potencia');
-                    // novaMaquina.tipo = values.getValue('tipo');
-                    // novaMaquina.tipoCalculo = values.getValue('tipo_calculo');
-                    // novaMaquina.tipoCombustivel = values.getValue('tipo_combustivel');
-                    // novaMaquina.tipoInsumo = values.getValue('tipo_insumo');
-                    // novaMaquina.valor = values.getValue('valor');
-                    // novaMaquina.vidaUtil = parseInt(values.getValue('vida_util'));
-                    //novaMaquina.tenant = "eedc365d-be1c-4da7-9cac-38e1c38315ad";
                     
                     novaMaquina.nome = nome;
                     novaMaquina.consumoMedio = parseFloat(consumoMedio);
