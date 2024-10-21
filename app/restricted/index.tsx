@@ -1,9 +1,12 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import Card from '@/components/Card';
 import Subtitulo from '@/components/Subtitulo';
 import Titulo from '@/components/Titulo';
 import SyncButton from '@/components/navigation/SyncButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { unidadesCollection, usuariosCollection } from '@/db';
 
 const cards = [
     {
@@ -25,25 +28,50 @@ const cards = [
 ]
 
 export default function HomeScreen() {
+    const [usuario, setUsuario] = useState<any>();
+    const [nomeUnidade, setNomeUnidade] = useState<string>();
+
+    useEffect(() => {
+        const buscarInfoUsuario = async () => {
+            try {
+                const userId = await AsyncStorage.getItem("userId");
+                const usuario = await usuariosCollection.find(userId || "");
+                const unidadeId = await AsyncStorage.getItem("unidadeId");
+                const unidade = await unidadesCollection.find(unidadeId || "");
+                setUsuario(usuario);
+                setNomeUnidade(unidade.nome);
+            } catch (error) {
+                console.error("Erro ao buscar informações do usuário: ", error);
+            }
+        }
+        buscarInfoUsuario();
+    }, [])
 
     return (
         <SafeAreaView style={styles.appContainer}>
-            <View style={styles.syncButton}>
-                <SyncButton />
-            </View>
-            <Titulo titulo="Bem vindo usuário!"></Titulo>
-            <Subtitulo subtitulo="Gerenciar propriedade"></Subtitulo>
-            <View style={styles.cardsContainer}>
-                {
-                    cards.map((card, index) => (
-                        <Card
-                            key={index}
-                            titulo={card.titulo}
-                            rota={card.rota}
-                        />
-                    ))
-                }
-            </View>
+            {usuario ? (
+                <>
+                    <View style={styles.syncButton}>
+                        <Text style={styles.unidade}>{nomeUnidade}</Text>
+                        <SyncButton />
+                    </View>
+                    <Titulo titulo={`Bem-vindo ${usuario.nome}!`} />
+                    <Subtitulo subtitulo="Gerenciar propriedade" />
+                    <View style={styles.cardsContainer}>
+                        {
+                            cards.map((card, index) => (
+                                <Card
+                                    key={index}
+                                    titulo={card.titulo}
+                                    rota={card.rota}
+                                />
+                            ))
+                        }
+                    </View>
+                </>
+            ) : (
+                <Titulo titulo="Carregando..." />
+            )}
         </SafeAreaView>
     );
 }
@@ -55,8 +83,12 @@ const styles = StyleSheet.create({
     syncButton: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         alignItems: 'flex-end',
+        padding: 10
+    },
+    unidade: {
+        fontSize: 20,
     },
     cardsContainer: {
         marginTop: 15,

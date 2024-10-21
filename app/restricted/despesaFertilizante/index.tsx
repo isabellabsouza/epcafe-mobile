@@ -4,13 +4,26 @@ import ListaCards from "@/components/depesaFertilizante/ListaCards";
 import Titulo from "@/components/Titulo";
 import { despesasFertilizantesCollection } from "@/db";
 import { AntDesign } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, Stack } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
 
-
-
 export default function NovaDespesaFertilizante() {
+
+    const [nomeUnidade, setNomeUnidade] = useState<string | null>('');
+
+    useEffect(() => {
+        const fetchNomeUnidade = async () => {
+            try {
+                const unidadeNome = await AsyncStorage.getItem("unidadeNome");
+                setNomeUnidade(unidadeNome);
+            } catch (error) {
+                console.error("Erro ao buscar o nome da unidade:", error);
+            }
+        };
+        fetchNomeUnidade();
+    }, []);
     
     useEffect(() => {
         const fetchTenant = async () => {
@@ -31,7 +44,7 @@ export default function NovaDespesaFertilizante() {
                     headerLeft: () => (
                         <AntDesign name="arrowleft" size={24} color="black" onPress={() => router.replace('/restricted')} />
                     ),
-                    title: "\t\t\t\tDespesas",
+                    title: `\t\t\t\t ${nomeUnidade}` || "",
                 }} 
             />
 

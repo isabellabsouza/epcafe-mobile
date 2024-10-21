@@ -1,5 +1,4 @@
 import { ScrollView, StyleSheet } from 'react-native';
-
 import Botao from '@/components/Botao';
 import CampoPesquisa from '@/components/CampoPesquisa';
 import CardLista from '@/components/CardLista';
@@ -7,8 +6,24 @@ import Titulo from '@/components/Titulo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Maquinas() {
+
+    const [nomeUnidade, setNomeUnidade] = useState<string | null>('');
+
+    useEffect(() => {
+        const fetchNomeUnidade = async () => {
+            try {
+                const unidadeNome = await AsyncStorage.getItem("unidadeNome");
+                setNomeUnidade(unidadeNome);
+            } catch (error) {
+                console.error("Erro ao buscar o nome da unidade:", error);
+            }
+        };
+        fetchNomeUnidade();
+    }, []);
 
     function goBack() {
         router.replace('/restricted');
@@ -20,6 +35,8 @@ export default function Maquinas() {
         { nome: "Modelo" },
         { nome: "Data de Compra" },
     ]
+
+    
     return (
         <SafeAreaView style={{ flex: 1, paddingTop: -23}}>
             <Stack.Screen 
@@ -27,7 +44,7 @@ export default function Maquinas() {
                     headerLeft: () => (
                         <AntDesign name="arrowleft" size={24} color="black" onPress={goBack} />
                     ),
-                    title: "\t\t\t\tMaquinas",
+                    title: `\t\t\t\t ${nomeUnidade}` || "",
                 }} 
             />
 
@@ -56,7 +73,6 @@ export default function Maquinas() {
 
 
 const styles = StyleSheet.create({
-    
     scrollContent: {
         padding: 17,
         flexGrow: 1, 
@@ -66,7 +82,5 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         marginBottom: 15,
         gap: 10,
-        //marginVertical: 10,
     }
-    
 })

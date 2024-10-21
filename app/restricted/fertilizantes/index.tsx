@@ -3,11 +3,28 @@ import CampoPesquisa from "@/components/CampoPesquisa";
 import CardLista from "@/components/fertilizantes/ListaCards";
 import Titulo from "@/components/Titulo";
 import { AntDesign } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, Stack } from "expo-router";
+import { useState, useEffect } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Fertilizantes() {
+
+    const [nomeUnidade, setNomeUnidade] = useState<string | null>('');
+
+    useEffect(() => {
+        const fetchNomeUnidade = async () => {
+            try {
+                const unidadeNome = await AsyncStorage.getItem("unidadeNome");
+                setNomeUnidade(unidadeNome);
+            } catch (error) {
+                console.error("Erro ao buscar o nome da unidade:", error);
+            }
+        };
+        fetchNomeUnidade();
+    }, []);
+    
     function goBack() {
         router.replace('/restricted');
     }
@@ -18,7 +35,7 @@ export default function Fertilizantes() {
                     headerLeft: () => (
                         <AntDesign name="arrowleft" size={24} color="black" onPress={goBack} />
                     ),
-                    title: "\t\t\t\tFertilizantes",
+                    title: `\t\t\t\t ${nomeUnidade}` || "",
                 }} 
             />
 

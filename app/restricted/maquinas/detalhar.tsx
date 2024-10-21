@@ -4,12 +4,12 @@ import Titulo from '@/components/Titulo';
 import Toast from '@/components/Toast/Toast';
 import database, { maquinasCollection } from '@/db';
 import Maquina from '@/db/model/Maquina';
+import { supabase } from '@/lib/supabase';
 import TipoMecanico from '@/utils/enums/TipoMecanico';
 import { withObservables } from '@nozbe/watermelondb/react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
-
 
 function detalharMaquina({ maquina }: { maquina: Maquina }) {
 
@@ -20,6 +20,8 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
     const [toast, setToast] = useState(false);
     const [gravidade, setGravidade] = useState('');
     const [mensagem, setMensagem] = useState('');
+
+    console.log("Maquina:", maquina);
 
     if (!maquina) {
         return <Text>Máquina não encontrada.</Text>;
@@ -37,7 +39,7 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
         setTimeout(() => {router.back()}, 3000);
         console.log("Máquina excluída com sucesso.");
     };
-
+    supabase.auth.getUser().then(user => console.log(user));
     return (
         <ScrollView contentContainerStyle={styles.scrollContent}>
             <Titulo titulo={maquina.nome} />

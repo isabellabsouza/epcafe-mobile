@@ -1,7 +1,7 @@
 import Botao from '@/components/Botao';
 import Titulo from '@/components/Titulo';
 import { supabase } from '@/lib/supabase';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
  
 export default function App() {
 
@@ -18,7 +18,6 @@ export default function App() {
                 style={styles.logo}
                 resizeMode="contain"     
             />
-
             
             <Botao rota="/login" nome="Fazer Login" />
             {/* <Botao nome="Sair" onPress={logOut} disabled={false} /> */}
