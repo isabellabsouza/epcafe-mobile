@@ -18,7 +18,7 @@ export default function App() {
             />
 
             
-            <ButtonLink route="/login" title="Fazer Login" />
+            <Botao rota="/login" nome="Fazer Login" />
             <Botao nome="Sair" onPress={logOut} disabled={false} />
         </View>
     );

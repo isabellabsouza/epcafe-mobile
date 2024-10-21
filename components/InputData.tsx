@@ -1,14 +1,12 @@
-import { useState } from 'react';
-import DatePicker from 'react-native-modern-datepicker'
+import { useEffect, useState } from 'react';
+import DatePicker from 'react-native-modern-datepicker';
 import Input from './Input';
-import { on } from '@nozbe/watermelondb/QueryDescription';
-import AntDesign from '@expo/vector-icons/AntDesign';
 
 interface InputDataProps {
     label: string,
     placeholder: string,
     value: string,
-    onChangeText: (text: string) => void
+    onChangeText: (text: Date) => void
 }
 
 export default function InputData({ label, placeholder, value, onChangeText }: InputDataProps) {
@@ -21,9 +19,15 @@ export default function InputData({ label, placeholder, value, onChangeText }: I
         return `${dia}/${mes}/${ano}`; 
     };
 
+    useEffect(() => {
+        if(dataSelecionada){
+            onChangeText(new Date(dataSelecionada.replaceAll("/", "-")));
+        }
+    }, [dataSelecionada])
+
     const handleDateChange = (date: string) => {
         setDataSelecionada(date); 
-        onChangeText(formatarData(date)); 
+        onChangeText(new Date(date.replaceAll("/", "-"))); 
         setIsOpen(false); 
     };
     //value={dataSelecionada ? formatarData(dataSelecionada) : ''}
@@ -35,13 +39,16 @@ export default function InputData({ label, placeholder, value, onChangeText }: I
                 label={label}
                 placeholder={placeholder}
                 value={dataSelecionada}
-                onChangeText={onChangeText}
+                onChangeText={(text) => {
+                    console.log('riaje', text)    
+                    onChangeText(new Date(text.replaceAll("/", "-")))
+                }}
                 onPress={() => setIsOpen(!isOpen)}
                 showKeyboard={false}
             />
             {isOpen && (
                 <DatePicker
-                    onDateChange={setDataSelecionada}
+                    onDateChange={(valor) => {console.log(new Date(valor.replaceAll("/", "-"))); setDataSelecionada(valor)}}
                     mode='calendar'
                     options={{
                         backgroundColor: '#ebe9e9',

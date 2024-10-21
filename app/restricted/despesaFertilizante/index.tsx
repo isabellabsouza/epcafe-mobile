@@ -1,8 +1,8 @@
 import Botao from "@/components/Botao";
 import CampoPesquisa from "@/components/CampoPesquisa";
-import ListaCards from "@/components/despesaMaquina/ListaCards";
+import ListaCards from "@/components/depesaFertilizante/ListaCards";
 import Titulo from "@/components/Titulo";
-import { despesasMaquinasCollection } from "@/db";
+import { despesasFertilizantesCollection } from "@/db";
 import { AntDesign } from "@expo/vector-icons";
 import { router, Stack } from "expo-router";
 import { useEffect } from "react";
@@ -10,12 +10,12 @@ import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
 
 
 
-export default function NovaDespesaMaquina() {
+export default function NovaDespesaFertilizante() {
     
     useEffect(() => {
         const fetchTenant = async () => {
             try {
-                const despesas = await despesasMaquinasCollection.query().fetch();
+                const despesas = await despesasFertilizantesCollection.query().fetch();
                 console.log(despesas);
             } catch (error) {
                 console.error("Erro ao buscar o tenant:", error);
@@ -36,9 +36,9 @@ export default function NovaDespesaMaquina() {
             />
 
             <ScrollView contentContainerStyle={styles.scrollContent} >
-                <Titulo titulo="Despesas com Máquinas e Implementos" />
+                <Titulo titulo="Despesas com Fertilizantes e Defensivos" />
                 <CampoPesquisa />
-                <Botao nome="Adicionar" rota="/restricted/despesaMaquina/criar" disabled={false}/>
+                <Botao nome="Adicionar" rota="/restricted/despesaFertilizante/criar" disabled={false}/>
                 <ScrollView 
                     contentContainerStyle={styles.containerFiltros} 
                     horizontal={true}
@@ -46,7 +46,7 @@ export default function NovaDespesaMaquina() {
                 >
                     {/* {
                         filtrosOrdenacao.map(
-                            (item) => <Botao nome={item.nome} rota="/restricted/maquinas" key={item.nome} disabled={false} />
+                            (item) => <Botao nome={item.nome} rota="/restricted/fertilizantes" key={item.nome} disabled={false} />
                         )
                     } */}
                 </ScrollView>

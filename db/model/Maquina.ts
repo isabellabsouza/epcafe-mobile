@@ -7,10 +7,6 @@ import { Associations } from '@nozbe/watermelondb/Model';
 export default class Maquina extends Model {
   static table = 'maquina'
 
-  static associations: Associations = {
-    tenant: { type: 'belongs_to', key: 'tenant_id' } as const
-  }
-
   @text('nome') nome!: string;
   @field('consumo_medio') consumoMedio!: number;
   @date('data_compra') dataCompra!: Date;

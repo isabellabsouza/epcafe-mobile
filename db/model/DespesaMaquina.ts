@@ -10,8 +10,6 @@ export default class DespesaMaquina extends Model {
     @date('data') data!: Date;
     @field('distancia_trabalhada') distanciaTrabalhada!: number;
     @text('fator_potencia') fatorPotencia!: string;
-    @field('litros_consumidos') litrosConsumidos!: number;
-    @field('minutos_trabalhados') minutosTrabalhados!: number;
     @field('preco_unitario_combustivel') precoUnitarioCombustivel!: number;
     @field('valor_total') valorTotal!: number;
     @field('unidade_horas') unidadeHoras!: boolean;

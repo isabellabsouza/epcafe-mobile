@@ -1,58 +1,109 @@
 import Botao from '@/components/Botao';
+import InfoFerTalhao from '@/components/despesaFerTalhao/InfoFerTalhao';
 import InfoLinha from '@/components/InfoLinha';
 import Titulo from '@/components/Titulo';
 import Toast from '@/components/Toast/Toast';
-import database, { maquinasCollection } from '@/db';
-import Maquina from '@/db/model/Maquina';
+import database, { despesasFerTalhoesCollection, despesasFertilizantesCollection, fertilizantesCollection, notasCollection } from '@/db';
+import DespesaFertilizante from '@/db/model/DespesaFertilizante';
 import TipoMecanico from '@/utils/enums/TipoMecanico';
+import { Q } from '@nozbe/watermelondb';
 import { withObservables } from '@nozbe/watermelondb/react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 
-function detalharMaquina({ maquina }: { maquina: Maquina }) {
+function detalharDespesaFertilizante({ despesaFertilizante }: { despesaFertilizante: DespesaFertilizante }) {
 
     const { id } = useLocalSearchParams();
     const [modalVisible, setModalVisible] = useState(false);
+    const [despesasFerTalhoes, setDespesasFerTalhoes] = useState<any[]>([]);
 
     //variáveis para o toast
     const [toast, setToast] = useState(false);
     const [gravidade, setGravidade] = useState('');
     const [mensagem, setMensagem] = useState('');
 
-    if (!maquina) {
-        return <Text>Máquina não encontrada.</Text>;
+    //dados para exibir
+    const [nomeFertilizante, setNomeFertilizante] = useState('');
+    const [numNotaFiscal, setNumNotaFiscal] = useState('');
+
+    if (!despesaFertilizante) {
+        return <Text>Despesa não encontrada.</Text>;
     }
 
-    console.log("Maquina:", maquina);
+    useEffect(() => {
+        const buscarDespesasFerTalhoes = async() => {
+            try{
+
+                const distribuiçõesEncontradas = await despesasFerTalhoesCollection.query(
+                    Q.where('despesa_id', despesaFertilizante.id)
+                )
+                .fetch();
+                setDespesasFerTalhoes(distribuiçõesEncontradas);
+            }catch(error){
+                console.error("Erro ao buscar a distribuição dos talhões: ", error);
+            }
+        }
+        buscarDespesasFerTalhoes();
+    }, []);
 
     const excluir = async () => {
         await database.write(async () => {
-            await maquina.markAsDeleted();
+            await despesaFertilizante.markAsDeleted();
         });
         setGravidade('sucesso');
-        setMensagem('Máquina excluída com sucesso!');    
+        setMensagem('Despesa excluída com sucesso!');    
         setToast(true);
         setTimeout(() => {router.back()}, 3000);
-        console.log("Máquina excluída com sucesso.");
+        console.log("Despesa excluída com sucesso.");
     };
+
+    useEffect(() => {
+        const buscarDados = async () => {
+            try {
+                const fertilizante = await fertilizantesCollection.find(despesaFertilizante.fertilizante.id);
+                setNomeFertilizante(fertilizante.nome);
+
+                const notaFiscal = await notasCollection.find(despesaFertilizante.notaFiscal.id);
+                setNumNotaFiscal(notaFiscal.numero);
+            }catch(error){
+                console.error("Erro ao buscar os dados para exibição: ", error);
+            }
+        }
+        buscarDados();
+    }, [])
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContent}>
-            <Titulo titulo={maquina.nome} />
+            <Titulo titulo="Despesa" />
 
-            <InfoLinha label="Nome" valor={maquina.nome} />
-            <InfoLinha label="Tipo" valor={TipoMecanico.getNome(maquina.tipoInsumo, maquina.tipo)} />
-            <InfoLinha label="Modelo" valor={maquina.modelo} />
-            <InfoLinha label="Data de compra" valor={new Date(maquina.dataCompra).toLocaleDateString()} />
-            <InfoLinha label="Consumo Médio" valor={maquina.consumoMedio} />
-            <InfoLinha label="Potência" valor={maquina.potencia + " cv"} />
-            <InfoLinha label="Tipo de cálculo" valor={maquina.tipoCalculo} />
-            <InfoLinha label="Tipo de combustível" valor={maquina.tipoCombustivel} />
-            <InfoLinha label="Tipo de insumo" valor={maquina.tipoInsumo} />
-            <InfoLinha label="Valor" valor={"R$ " + maquina.valor} />
-            <InfoLinha label="Vida Útil" valor={maquina.vidaUtil + " anos"} />
+            <InfoLinha label="Data" valor={despesaFertilizante.data.toLocaleDateString()} />
+            <InfoLinha label="Fertilizante" valor={nomeFertilizante} />
+            <InfoLinha label="Nota Fiscal" valor={numNotaFiscal} />
+            <InfoLinha 
+                label="Valor Total" 
+                valor={new Intl.NumberFormat('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                }).format(despesaFertilizante.valorTotal)
+                .replace('R$', 'R$ ')
+                }
+            />
+
+            <Titulo titulo="Distribuição nos Talhões" />
+
+            {despesasFerTalhoes &&
+                despesasFerTalhoes.map((despesaFerTalhao, index) => 
+                    <InfoFerTalhao 
+                        key={index}
+                        medida={despesaFertilizante.medida} 
+                        talhaoId={despesaFerTalhao.talhao.id} 
+                        quantidade={despesaFerTalhao.quantidade}
+                        valor={despesaFerTalhao.valor} 
+                    />
+                )
+            }
 
             <Modal
                 animationType="slide"
@@ -66,7 +117,7 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
                 <View style={styles.overlay}>
                     <View style={styles.modalView}>
                         <Text style={styles.modalTexto}>
-                            Tem certeza que deseja excluir a máquina {maquina.nome}?
+                            Tem certeza que deseja excluir a despesa?
                         </Text>
                         <View style={styles.botoesModal}>
                             <Botao
@@ -90,7 +141,7 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
             
 
             <View style={styles.botoesContainer}>
-                <Botao nome="Editar" rota={`/restricted/maquinas/criar?id=${id}`} />
+                <Botao nome="Editar" rota={`/restricted/despesaFertilizante/criar?id=${id}`} />
                 <Botao nome="Excluir" onPress={() => setModalVisible(true)} />
             </View>
             {toast && 
@@ -110,22 +161,22 @@ const enhance = withObservables(
             throw new Error("ID não encontrado.");
         }
         return {
-            maquina: maquinasCollection.findAndObserve(id),
+            despesaFertilizante: despesasFertilizantesCollection.findAndObserve(id),
         };
     }
 );
 
-function EnhancedDetalharMaquina() {
+function EnhancedDetalharDespesaFertilizante() {
     const { id } = useLocalSearchParams(); // Pegando o ID da máquina
     if (!id) {
-        return <Text>ID da máquina não foi fornecido.</Text>;
+        return <Text>ID da despesa não foi fornecido.</Text>;
     }
 
-    const EnhancedComponent = enhance(detalharMaquina);
+    const EnhancedComponent = enhance(detalharDespesaFertilizante);
     return <EnhancedComponent id={String(id)} />;
 }
 
-export default EnhancedDetalharMaquina;
+export default EnhancedDetalharDespesaFertilizante;
 
 const styles = StyleSheet.create({
     scrollContent: {

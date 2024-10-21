@@ -1,6 +1,4 @@
-import AntDesign from "@expo/vector-icons/AntDesign";
-import { useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 interface InfoLinhaProps {
     label: string,

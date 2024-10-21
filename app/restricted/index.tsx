@@ -5,6 +5,11 @@ import Subtitulo from '@/components/Subtitulo';
 import Titulo from '@/components/Titulo';
 import { mySync } from '@/db/sync';
 
+import { TouchableOpacity } from "react-native";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Stack } from "expo-router";
+import SyncButton from '@/components/navigation/SyncButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const cards = [
   {
@@ -21,7 +26,7 @@ const cards = [
   },
   {
     titulo: "Despesas com Fertilizantes e Defensivos",
-    rota: 'restricted/maquinas'
+    rota: 'restricted/despesaFertilizante'
   }
 ]
 
@@ -58,8 +63,16 @@ const test = async () => {
 export default function HomeScreen() {
 
   return (
-    <View style={styles.appContainer}>
+    <SafeAreaView style={styles.appContainer}>
+      <View style={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
 
+      }}>
+        <SyncButton />
+      </View>
       <Titulo titulo="Bem vindo usuário!"></Titulo>
       <Subtitulo subtitulo="Gerenciar propriedade"></Subtitulo>
       <View style={styles.cardsContainer}>
@@ -69,9 +82,9 @@ export default function HomeScreen() {
           ))
         }
       </View>
-      <Button title='sync' onPress={mySync} />
-      
-    </View>
+      {/* <Button title='sync' onPress={mySync} /> */}
+
+    </SafeAreaView>
   );
 }
 

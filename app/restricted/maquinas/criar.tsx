@@ -5,7 +5,7 @@ import InputData from "@/components/InputData";
 import Select from "@/components/Select";
 import Titulo from "@/components/Titulo";
 import Toast from "@/components/Toast/Toast";
-import database, { getTenant, maquinasCollection } from "@/db";
+import database, { getTenant, maquinasCollection, tenantsCollection } from "@/db";
 import Maquina from "@/db/model/Maquina";
 import Tenant from "@/db/model/Tenant";
 import TipoCalculo from "@/utils/enums/TipoCalculo";
@@ -144,6 +144,8 @@ export default function CriarMaquina() {
 
     useEffect(() => {
         const fetchTenant = async () => {
+            const tenants = await tenantsCollection.query().fetch();
+            console.log("Tenants:", tenants);
             try {
                 const fetchedTenant = await getTenant;
                 setTenant(fetchedTenant);

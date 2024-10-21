@@ -1,6 +1,7 @@
 import Botao from "@/components/Botao";
 import Input from "@/components/Input";
 import InputData from "@/components/InputData";
+import RadioSelect from "@/components/RadioSelect";
 import Select from "@/components/Select";
 import Titulo from "@/components/Titulo";
 import Toast from "@/components/Toast/Toast";
@@ -8,13 +9,11 @@ import database, { despesasMaquinasCollection, getTenant, maquinasCollection } f
 import DespesaMaquina from "@/db/model/DespesaMaquina";
 import Maquina from "@/db/model/Maquina";
 import Tenant from "@/db/model/Tenant";
-import TipoCalculo from "@/utils/enums/TipoCalculo";
-import TipoCombustivel from "@/utils/enums/TipoCombustivel";
-import TipoInsumoMecanico from "@/utils/enums/TipoInsumoMecanico";
-import TipoMecanico from "@/utils/enums/TipoMecanico";
+import FatorPotencia from "@/utils/enums/FatorPotencia";
 import { useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
+import { RadioButtonProps } from "react-native-radio-buttons-group";
 
 export default function CriarDespesaMaquina() {
 
@@ -28,15 +27,10 @@ export default function CriarDespesaMaquina() {
     const [gravidade, setGravidade] = useState('');
     const [mensagem, setMensagem] = useState('');
 
-    //fetch maquinas
-    const [maquinas, setMaquinas] = useState<any[]>([]);
-
     // variáveis de estado para os campos do formulário
-    const [data, setData] = useState('');
+    const [data, setData] = useState<Date>();
     const [distanciaTrabalhada, setDistanciaTrabalhada] = useState('');
     const [fatorPotencia, setFatorPotencia] = useState('');
-    const [litrosConsumidos, setLitrosConsumidos] = useState('');
-    const [minutosTrabalhados, setMinutosTrabalhados] = useState('');
     const [precoUnitarioCombustivel, setPrecoUnitarioCombustivel] = useState('');
     const [valorTotal, setValorTotal] = useState('');
     const [unidadeHoras, setUnidadeHoras] = useState('');
@@ -44,6 +38,34 @@ export default function CriarDespesaMaquina() {
     const [maquina, setMaquina] = useState('');
     const [unidade, setUnidade] = useState<any>();
     const [tenant, setTenant] = useState<Tenant>();
+
+    // definição das listas de opções para os selects
+    const [maquinas, setMaquinas] = useState<any[]>([]);
+    const listaFatorPotencia = Array.from(Object.keys(FatorPotencia))
+        .filter(key => key !== 'getNome')
+        .map((key) => {
+            const item = FatorPotencia[key as keyof typeof FatorPotencia];
+            if (typeof item === 'object' && 'description' in item) {
+                return {
+                    label: item.description,
+                    value: key
+                };
+            }
+            return null;
+        })
+        .filter(item => item !== null);
+    const opcaoUnidadeTempo: RadioButtonProps[] = useMemo(() => ([
+        {
+            id: '0',
+            label: 'Horas',
+            value: 'Horas'
+        },
+        {
+            id: '1',
+            label: 'Minutos',
+            value: 'Minutos'
+        }
+    ]), []);
 
     //edição de máquinas e implementos
     useEffect(() => {
@@ -54,11 +76,9 @@ export default function CriarDespesaMaquina() {
                     const despesaMaquinaEncontrada = await despesasMaquinasCollection.find(String(id));
                     setDespesaMaquina(despesaMaquinaEncontrada);
 
-                    setData(despesaMaquinaEncontrada.data.toDateString());
+                    setData(despesaMaquinaEncontrada.data);
                     setDistanciaTrabalhada(despesaMaquinaEncontrada.distanciaTrabalhada.toString());
                     setFatorPotencia(despesaMaquinaEncontrada.fatorPotencia.toString());
-                    setLitrosConsumidos(despesaMaquinaEncontrada.litrosConsumidos.toString());
-                    setMinutosTrabalhados(despesaMaquinaEncontrada.minutosTrabalhados.toString());
                     setPrecoUnitarioCombustivel(despesaMaquinaEncontrada.precoUnitarioCombustivel.toString());
                     setValorTotal(despesaMaquinaEncontrada.valorTotal.toString());
                     setUnidadeHoras(despesaMaquinaEncontrada.unidadeHoras.toString());
@@ -78,7 +98,7 @@ export default function CriarDespesaMaquina() {
         const fetchMaquinas = async () => {
             try {
                 const maquinasEncontradas = await maquinasCollection.query().fetch();
-                
+
                 const maquinas = maquinasEncontradas.map((maquina) => {
                     return {
                         label: maquina.nome,
@@ -115,17 +135,15 @@ export default function CriarDespesaMaquina() {
             // Se a despesa já existe, atualizar
             await database.write(async () => {
                 await despesaMaquina.update((d) => {
-                    d.data = new Date(data);
+                    d.data = data!; //FIXME: data não pode ser nula
                     d.distanciaTrabalhada = parseFloat(distanciaTrabalhada);
                     d.fatorPotencia = fatorPotencia;
-                    d.litrosConsumidos = parseFloat(litrosConsumidos);
-                    d.minutosTrabalhados = parseFloat(minutosTrabalhados);
                     d.precoUnitarioCombustivel = parseFloat(precoUnitarioCombustivel);
                     d.valorTotal = parseFloat(valorTotal);
                     d.unidadeHoras = unidadeHoras === 'true';
                     d.tempoTrabalhado = parseFloat(tempoTrabalhado);
                     //@ts-ignore
-                    d.maquina.id = maquina;
+                    d.maquina.id = maquina.value;
                     console.log('despesa editada', d)
 
                 });
@@ -148,10 +166,19 @@ export default function CriarDespesaMaquina() {
             await database.write(async () => {
                 await despesasMaquinasCollection.create((novaDespesa) => {
 
-
-
+                    novaDespesa.data = data!; //FIXME: data não pode ser nula
                     //@ts-ignore
-                    novaDespesa.tenant.set(tenant);
+                    // novaDespesa.maquina.set(maquina);
+                    //@ts-ignore
+                    novaDespesa.maquina.id = maquina.value;
+                    novaDespesa.precoUnitarioCombustivel = parseFloat(precoUnitarioCombustivel);
+                    novaDespesa.fatorPotencia = fatorPotencia;
+                    novaDespesa.unidadeHoras = unidadeHoras === 'true';
+                    novaDespesa.tempoTrabalhado = parseFloat(tempoTrabalhado);
+                    novaDespesa.distanciaTrabalhada = parseFloat(distanciaTrabalhada);
+                    novaDespesa.valorTotal = 1000;
+                    //@ts-ignore
+                    //novaDespesa.tenant.set(tenant);
                     console.log('novaDespesa', novaDespesa);
 
 
@@ -184,68 +211,60 @@ export default function CriarDespesaMaquina() {
             <InputData
                 label="Data"
                 placeholder="Selecione a data da despesa"
-                value={data}
-                onChangeText={(text) => setData(text)}
+                value={data?.toDateString() || ''}
+                onChangeText={(text) => {console.log('text :)', text); setData(text)}}
             />
 
-            <Select 
+            <Select
                 dados={maquinas}
-                onChange={(value) => setMaquina(value)} 
+                onChange={(value) =>
+                {
+                    setMaquina(value)
+                    console.log('maquina', maquina)
+                }
+                    
+                    }
                 value={maquina}
-                placeholder="Selecione a máquina/implemento" 
+                placeholder="Selecione a máquina/implemento"
                 label="Máquina/Implemento"
-
-            />
-
-            {/* <Input
-                label="Potência"
-                placeholder="0,000 CV"
-                value={potencia}
-                onChangeText={(text) => setPotencia(text)}
-                keyboard="numeric"
             />
 
             <Input
-                label="Consumo médio"
-                placeholder="0,000 km/L"
-                value={consumoMedio}
-                onChangeText={(text) => setConsumoMedio(text)}
-                keyboard="numeric"
+                label="Preço do combustível"
+                placeholder="R$ 00,00"
+                value={precoUnitarioCombustivel}
+                onChangeText={(text) => setPrecoUnitarioCombustivel(text)}
+            />
+
+            <Select
+                dados={listaFatorPotencia}
+                onChange={(value) => setFatorPotencia(value)}
+                value={fatorPotencia}
+                placeholder="Selecione o fator correspondente à intensidade de uso"
+                label="Fator de potência"
+            />
+
+            <RadioSelect
+                label="Unidade de tempo"
+                dados={opcaoUnidadeTempo}
             />
 
             <Input
-                label="Nome"
-                placeholder={"Nome " + (tipoInsumo?.label ?? 'Máquina/Implemento')}
-                value={nome}
-                onChangeText={(text) => setNome(text)}
+                label="Tempo trabalhado"
+                placeholder="Informe o tempo trabalhado"
+                value={tempoTrabalhado}
+                onChangeText={(text) => setTempoTrabalhado(text)}
             />
 
             <Input
-                label="Modelo"
-                placeholder={"Modelo " + (tipoInsumo?.label ?? 'Máquina/Implemento')}
-                value={modelo}
-                onChangeText={(text) => setModelo(text)}
-            />
-
-            <Input
-                label="Valor"
-                placeholder="R$ 0,00"
-                value={valor}
-                onChangeText={(text) => setValor(text)}
-                keyboard="numeric"
+                label="Distância trabalhada"
+                placeholder="Informe a distância trabalhado"
+                value={distanciaTrabalhada}
+                onChangeText={(text) => setDistanciaTrabalhada(text)}
             />
 
 
-
-            <Input
-                label="Vida útil"
-                placeholder="0"
-                value={vidaUtil}
-                onChangeText={(text) => setVidaUtil(text)}
-                keyboard="numeric"
-            />
-
-            <Botao nome="Salvar" onPress={salvarMaquina} disabled={false} /> */}
+            <Botao nome="Salvar" onPress={salvarDespesaMaquina} disabled={false} />
 
             {toast &&
                 <Toast setToast={setToast}

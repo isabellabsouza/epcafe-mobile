@@ -1,10 +1,12 @@
-import { Slot, Stack } from "expo-router";
-import { View, StyleSheet } from "react-native";
-
+import SyncButton from "@/components/navigation/SyncButton";
+import { Stack } from "expo-router";
 export default function MaquinasLayout() {
     return (
-        <Stack screenOptions={{headerShown:true}} >
-            
+        <Stack screenOptions={{
+            headerShown: true,
+            headerRight: () => <SyncButton />
+        }} >
+
         </Stack>
     )
 }

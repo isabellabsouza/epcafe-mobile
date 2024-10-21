@@ -1,21 +1,22 @@
-import { despesasMaquinasCollection } from "@/db";
+import { despesasFertilizantesCollection } from "@/db";
 import DespesaMaquina from "@/db/model/DespesaMaquina";
 import { withObservables } from '@nozbe/watermelondb/react';
 import { StyleSheet, View } from "react-native";
 import Card from "./Card";
+import DespesaFertilizante from "@/db/model/DespesaFertilizante";
 
-function ListaCards({ despesasMaquinas }: { despesasMaquinas: DespesaMaquina[] }) {
+function ListaCards({ despesasFertilizantes }: { despesasFertilizantes: DespesaFertilizante[] }) {
 
     
     return (
 
         <View style={styles.cardsContainer}>
             {
-                despesasMaquinas?.map((item) => 
+                despesasFertilizantes?.map((item) => 
                     <Card 
                         key={item.id.toString()} 
-                        despesaMaquina={item} 
-                        rota="/restricted/despesaMaquina/detalhar" 
+                        despesaFertilizante={item} 
+                        rota="/restricted/despesaFertilizante/detalhar" 
                     />
                 )
             }
@@ -27,7 +28,7 @@ function ListaCards({ despesasMaquinas }: { despesasMaquinas: DespesaMaquina[] }
 }
 
 const enhance = withObservables([], () => ({
-    despesasMaquinas: despesasMaquinasCollection.query(),
+    despesasFertilizantes: despesasFertilizantesCollection.query(),
 }));
 
 export default enhance(ListaCards);

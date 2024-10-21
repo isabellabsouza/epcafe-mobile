@@ -1,27 +1,27 @@
-import DespesaMaquina from "@/db/model/DespesaMaquina";
+import DespesaFertilizante from "@/db/model/DespesaFertilizante";
 import withObservables from "@nozbe/watermelondb/react/withObservables";
 import { Link } from "expo-router";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 
 interface CardProps {
-    despesaMaquina: DespesaMaquina;
+    despesaFertilizante: DespesaFertilizante;
     rota: string;
 }
-function Card({ despesaMaquina, rota }: CardProps) {
+function Card({ despesaFertilizante, rota }: CardProps) {
     return (
-        <Link href={{ pathname: rota as any, params: { id: despesaMaquina.id } }} asChild>
+        <Link href={{ pathname: rota as any, params: { id: despesaFertilizante.id } }} asChild>
             <TouchableOpacity style={styles.cardContainer}>
-                <Text style={styles.titulo}>{despesaMaquina.distanciaTrabalhada}</Text>
-                <Text style={styles.info}>{despesaMaquina.tempoTrabalhado}</Text>
+                <Text style={styles.titulo}>{despesaFertilizante.data.toLocaleDateString()}</Text>
+                <Text style={styles.info}>{despesaFertilizante.fertilizante.nome}</Text>
             </TouchableOpacity>
         </Link>
     )
 }
 
 const enhance = withObservables(
-    ['despesaMaquina'],
-    ({ despesaMaquina }: CardProps) => ({
-        despesaMaquina,
+    ['despesaFertilizante'],
+    ({ despesaFertilizante }: CardProps) => ({
+        despesaFertilizante,
     })
 );
 
