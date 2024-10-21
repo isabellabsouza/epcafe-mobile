@@ -1,45 +1,72 @@
-import ButtonLink from '@/components/ButtonLink';
-import { Text, View, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
+import Botao from '@/components/Botao';
+import CampoPesquisa from '@/components/CampoPesquisa';
 import CardLista from '@/components/CardLista';
+import Titulo from '@/components/Titulo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Maquinas() {
-    
-    function goBack(){
+
+    function goBack() {
         router.replace('/restricted');
     }
 
+    const filtrosOrdenacao = [
+        { nome: "Nome" },
+        { nome: "Vida Útil" },
+        { nome: "Modelo" },
+        { nome: "Data de Compra" },
+    ]
     return (
-            <View>
-            <Stack.Screen options={{headerLeft: () => {
-                return <AntDesign name="arrowleft" size={24} color="black" onPress={goBack} />
-            },
-            title: "\t\t\t\tMaquinas",
-            }} />
-            <Text style={styles.titulo}>Maquinas</Text>
+        <SafeAreaView style={{ flex: 1, paddingTop: -23}}>
+            <Stack.Screen 
+                options={{
+                    headerLeft: () => (
+                        <AntDesign name="arrowleft" size={24} color="black" onPress={goBack} />
+                    ),
+                    title: "\t\t\t\tMaquinas",
+                }} 
+            />
+
+            <ScrollView contentContainerStyle={styles.scrollContent} >
+                <Titulo titulo="Máquinas e Implementos" />
+                <CampoPesquisa />
+                <Botao nome="Adicionar" rota="/restricted/maquinas/criar" disabled={false}/>
+                <ScrollView 
+                    contentContainerStyle={styles.containerFiltros} 
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                >
+                    {
+                        filtrosOrdenacao.map(
+                            (item) => <Botao nome={item.nome} rota="/restricted/maquinas" key={item.nome} disabled={false} />
+                        )
+                    }
+                </ScrollView>
+                <CardLista />
+            </ScrollView>
+
             
-            <ButtonLink route="/restricted/maquinas/criar" title="Nova Máquina" />
-            
-            <CardLista />
-            </View>
+        </SafeAreaView>
     );
 }
 
+
 const styles = StyleSheet.create({
-    container: {
-        marginBottom: 170
-
+    
+    scrollContent: {
+        padding: 17,
+        flexGrow: 1, 
     },
-    titulo: {
-        fontSize: 20,
+    containerFiltros: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginBottom: 15,
+        gap: 10,
+        //marginVertical: 10,
     }
+    
 })
-// const EnhancedMaquinas = withObservables([], () => ({
-//     maquinas: maquinasCollection.query(),
-// }));
-
-// export default EnhancedMaquinas(Maquinas);
-//https://www.youtube.com/watch?v=x7KE4JD-Q9A&t=7479s 2:15:58 JSI SQLite Adapter erro

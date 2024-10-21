@@ -1,13 +1,12 @@
-import { Slot, Stack } from "expo-router";
-
+import SyncButton from "@/components/navigation/SyncButton";
+import { Stack } from "expo-router";
 export default function MaquinasLayout() {
     return (
-        <Stack screenOptions={{headerShown:true}} >
-            {/* <Stack.Screen name="index" options={{ headerTitle: "Máquinas" }} /> */}
-                {/* {() => 
-                }  Use o Slot como filho de Stack.Screen */}
-                {/* <Slot /> */}
-            {/* </Stack.Screen> */}
+        <Stack screenOptions={{
+            headerShown: true,
+            headerRight: () => <SyncButton />
+        }} >
+
         </Stack>
     )
 }

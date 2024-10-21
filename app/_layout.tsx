@@ -1,11 +1,10 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Slot, Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -34,7 +33,10 @@ export default function RootLayout() {
       //   <Stack.Screen name="restricted" />
       //   <Stack.Screen name="+not-found" />
       // </Stack>
-      <Slot />
+      // <SafeAreaView style={{ flex: 1 }}> 
+            <Slot />
+        // </SafeAreaView>
+        
     //</ThemeProvider>
   );
 }
