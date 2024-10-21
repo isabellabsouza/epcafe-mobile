@@ -1,6 +1,7 @@
-import SyncButton from "@/components/navigation/SyncButton";
 import { Stack } from "expo-router";
-export default function MaquinasLayout() {
+import SyncButton from "@/components/navigation/SyncButton";
+
+export default function DespesasFertilizantesLayout() {
     return (
         <Stack screenOptions={{
             headerShown: true,

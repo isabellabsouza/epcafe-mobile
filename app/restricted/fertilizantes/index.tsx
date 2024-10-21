@@ -1,44 +1,31 @@
 import Botao from "@/components/Botao";
 import CampoPesquisa from "@/components/CampoPesquisa";
-import ListaCards from "@/components/despesaMaquina/ListaCards";
+import CardLista from "@/components/fertilizantes/ListaCards";
 import Titulo from "@/components/Titulo";
-import { despesasMaquinasCollection } from "@/db";
 import { AntDesign } from "@expo/vector-icons";
 import { router, Stack } from "expo-router";
-import { useEffect } from "react";
-import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-
-
-export default function NovaDespesaMaquina() {
-    
-    useEffect(() => {
-        const fetchTenant = async () => {
-            try {
-                const despesas = await despesasMaquinasCollection.query().fetch();
-                console.log(despesas);
-            } catch (error) {
-                console.error("Erro ao buscar o tenant:", error);
-            }
-        };
-        fetchTenant();
-    }, [])
-
+export default function Fertilizantes() {
+    function goBack() {
+        router.replace('/restricted');
+    }
     return (
         <SafeAreaView style={{ flex: 1, paddingTop: -23}}>
             <Stack.Screen 
                 options={{
                     headerLeft: () => (
-                        <AntDesign name="arrowleft" size={24} color="black" onPress={() => router.replace('/restricted')} />
+                        <AntDesign name="arrowleft" size={24} color="black" onPress={goBack} />
                     ),
-                    title: "\t\t\t\tDespesas",
+                    title: "\t\t\t\tFertilizantes",
                 }} 
             />
 
             <ScrollView contentContainerStyle={styles.scrollContent} >
-                <Titulo titulo="Despesas com Máquinas e Implementos" />
+                <Titulo titulo="Fertilizantes e Defensivos" />
                 <CampoPesquisa />
-                <Botao nome="Adicionar" rota="/restricted/despesaMaquina/criar" disabled={false}/>
+                <Botao nome="Adicionar" rota="/restricted/fertilizantes/criar" disabled={false}/>
                 <ScrollView 
                     contentContainerStyle={styles.containerFiltros} 
                     horizontal={true}
@@ -50,13 +37,16 @@ export default function NovaDespesaMaquina() {
                         )
                     } */}
                 </ScrollView>
-                <ListaCards />
-            </ScrollView>            
+                <CardLista />
+            </ScrollView>
+
+            
         </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
+    
     scrollContent: {
         padding: 17,
         flexGrow: 1, 
@@ -66,5 +56,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         marginBottom: 15,
         gap: 10,
+        //marginVertical: 10,
     }
+    
 })

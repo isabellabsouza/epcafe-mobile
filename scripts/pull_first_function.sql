@@ -665,11 +665,11 @@ return jsonb_build_object (
       'unidade', _unidade,
       'talhao', _talhao,
       'nota_fiscal', _nota_fiscal,
-      'item', _item,
+      'item', _item
       'fertilizante', _fertilizante,
       'despesa_maquina', _despesa_maquina,
       'despesa_fertilizante', _despesa_fertilizante,
-      'despesa_fer_talhao', _despesa_fer_talhao
+      'despesa_fer_talhao', _despesa_fer_talhao,
     ),
     'timestamp', timestamp_to_epoch (now())
 );

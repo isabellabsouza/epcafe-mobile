@@ -1,12 +1,13 @@
 import SyncButton from "@/components/navigation/SyncButton";
 import { Stack } from "expo-router";
-export default function MaquinasLayout() {
+
+export default function DespesasMaquinasLayout() {
     return (
         <Stack screenOptions={{
-            headerShown: true,
+            headerShown:true,
             headerRight: () => <SyncButton />
         }} >
-
+            
         </Stack>
     )
 }

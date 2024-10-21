@@ -1,9 +1,7 @@
 import Botao from '@/components/Botao';
 import ButtonLink from '@/components/ButtonLink';
-import { ThemedText } from '@/components/ThemedText';
 import { supabase } from '@/lib/supabase';
-import { Link } from 'expo-router';
-import { View, StyleSheet, Text, Image } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
  
 export default function App() {
 
@@ -20,7 +18,7 @@ export default function App() {
             />
 
             
-            <ButtonLink route="/login" title="Fazer Login" />
+            <Botao rota="/login" nome="Fazer Login" />
             <Botao nome="Sair" onPress={logOut} disabled={false} />
         </View>
     );

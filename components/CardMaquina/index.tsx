@@ -13,9 +13,9 @@ function CardMaquina({maquina, rota}: CardMaquinaProps) {
         <Link href={{ pathname: rota as any, params: {id: maquina.id}}} asChild>
             <TouchableOpacity style={styles.cardContainer}>
                 <Text style={styles.titulo}>{maquina.nome}</Text>
-                <Text style={styles.info}>{maquina.vida_util} anos</Text>
-                <Text style={styles.info}>Potência</Text>
-                <Text style={styles.info}>Combustível</Text>
+                <Text style={styles.info}>{maquina.vidaUtil} anos</Text>
+                <Text style={styles.info}>{maquina.potencia} CV</Text>
+                <Text style={styles.info}>{maquina.tipoCombustivel}</Text>
             </TouchableOpacity>
         </Link>
     );

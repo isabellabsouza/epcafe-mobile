@@ -2,18 +2,18 @@ import { useEffect, useState } from "react";
 import Input from "../Input";
 import FormFactory from "./FormFactory";
 import MontaObject from "./MontaObject";
+import InputData from "../InputData";
 
 interface props {
     name: string,
-    montaObject: MontaObject
+    montaObject: MontaObject,
+    tipo: string,
+    valor?: string
 }
-export default function FormInput({ name, montaObject }: props) {
+export default function FormInput({ name, montaObject, tipo, valor}: props) {
     
     const [value, setValue] = useState('');
-
-    useEffect(() => {
-        montaObject.add(name, '');
-    },[])
+    const [firstLoad, setFirstLoad] = useState(true);
 
     const capitalize = (str: string) => {
         return str.charAt(0).toUpperCase() + str.slice(1);
@@ -23,11 +23,30 @@ export default function FormInput({ name, montaObject }: props) {
                     .map(word => capitalize(word)).join(' ');
 
     const onInput = (text: string) => {
-        montaObject.add(name, text);
+        console.log(tipo)
+        if(tipo == 'number'){
+            montaObject.add(name, parseInt(text));
+        }else{
+            montaObject.add(name, text);
+        }
         setValue(text);
     }
 
-    return <Input key={name} label={label} placeholder={label} value={value} onChangeText={onInput} />
+
+    setTimeout(() => {
+        if(firstLoad){
+            setFirstLoad(false);
+            onInput(valor ?? '');
+        }
+    }, 100);
+
+    if(tipo === 'data'){
+        return <InputData label={label} placeholder={label} value={value} onChangeText={onInput} />
+    } else {
+
+        return <Input key={name} label={label} placeholder={label} value={value} onChangeText={onInput} />
+    }
+
 
 
 }
