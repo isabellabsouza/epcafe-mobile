@@ -316,6 +316,7 @@ export default function CriarMaquina() {
                 label="Data de compra"
                 placeholder="Selecione a data de compra"
                 value={dataCompra}
+                //@ts-ignore
                 onChangeText={(text) => setDataCompra(text)}
             />
 
