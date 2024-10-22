@@ -2,7 +2,7 @@ import Botao from '@/components/Botao';
 import InfoLinha from '@/components/InfoLinha';
 //import ModalConfirmacao from '@/components/ModalConfirmacao';
 import Titulo from '@/components/Titulo';
-import Toast from '@/components/Toast/Toast';
+import Toast from '@/components/toast/Toast';
 import database, { fertilizantesCollection } from '@/db';
 import Fertilizante from '@/db/model/Fertilizante';
 import { withObservables } from '@nozbe/watermelondb/react';

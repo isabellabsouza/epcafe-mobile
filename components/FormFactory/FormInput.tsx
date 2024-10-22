@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Input from "../Input";
+import Input from "../Formulario/Input";
 import FormFactory from "./FormFactory";
 import MontaObject from "./MontaObject";
-import InputData from "../InputData";
+import InputData from "../Formulario/InputData";
 
 interface props {
     name: string,

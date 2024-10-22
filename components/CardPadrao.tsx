@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import {Href, Link} from 'expo-router';
+import { Href, Link } from 'expo-router';
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 interface CardProps {
     rota: string;
     titulo: string;
 }
-const Card: React.FC<CardProps> = ({rota, titulo}) => {
+export default function Card ({rota, titulo}: CardProps){
     return (
         <Link href={rota as unknown as Href<string | object>} asChild>
             <TouchableOpacity style={styles.cardContainer}>
@@ -28,5 +28,3 @@ const styles = StyleSheet.create({
         fontSize: 19,
     }
 })
-
-export default Card;

@@ -1,7 +1,7 @@
 import Botao from '@/components/Botao';
 import InfoLinha from '@/components/InfoLinha';
 import Titulo from '@/components/Titulo';
-import Toast from '@/components/Toast/Toast';
+import Toast from '@/components/toast/Toast';
 import database, { maquinasCollection } from '@/db';
 import Maquina from '@/db/model/Maquina';
 import { supabase } from '@/lib/supabase';

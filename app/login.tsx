@@ -3,7 +3,7 @@ import { Alert, StyleSheet, View, AppState, TextInput, Button } from 'react-nati
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
 import Titulo from '@/components/Titulo'
-import Input from '@/components/Input'
+import Input from '@/components/Formulario/Input'
 import Botao from '@/components/Botao'
 import { Session } from '@supabase/supabase-js'
 import { firstSync } from '@/db/firstSync'

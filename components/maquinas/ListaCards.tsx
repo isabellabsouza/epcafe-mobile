@@ -1,7 +1,7 @@
 import { maquinasCollection } from "@/db";
 import Maquina from "@/db/model/Maquina";
 import { StyleSheet, Text, View } from "react-native";
-import CardMaquina from "../CardMaquina";
+import CardMaquina from "./Card";
 import { withObservables } from '@nozbe/watermelondb/react';
 import { Q } from '@nozbe/watermelondb';
 

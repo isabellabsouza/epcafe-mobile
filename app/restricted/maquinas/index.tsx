@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet } from 'react-native';
 import Botao from '@/components/Botao';
 import CampoPesquisa from '@/components/CampoPesquisa';
-import CardLista from '@/components/CardLista';
+import CardLista from '@/components/maquinas/ListaCards';
 import Titulo from '@/components/Titulo';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router, Stack } from 'expo-router';

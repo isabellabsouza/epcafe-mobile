@@ -1,10 +1,10 @@
 import Botao from "@/components/Botao";
-import InputFerTalhao from "@/components/despesaFerTalhao/InputFerTalhao";
+import InputFerTalhao from "@/components/depesaFertilizante/InputFerTalhao";
 import MontaObject from "@/components/FormFactory/MontaObject";
-import InputData from "@/components/InputData";
-import Select from "@/components/Select";
+import InputData from "@/components/Formulario/InputData";
+import Select from "@/components/Formulario/Select";
 import Titulo from "@/components/Titulo";
-import Toast from "@/components/Toast/Toast";
+import Toast from "@/components/toast/Toast";
 import database, { despesasFerTalhoesCollection, despesasFertilizantesCollection, fertilizantesCollection, getFertilizante, getTenant, itensCollection, notasCollection, talhoesCollection } from "@/db";
 import DespesaFerTalhao from "@/db/model/DespesaFerTalhao";
 import DespesaFertilizante from "@/db/model/DespesaFertilizante";

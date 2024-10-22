@@ -1,10 +1,10 @@
 import Botao from "@/components/Botao";
 import MontaObject from "@/components/FormFactory/MontaObject";
-import Input from "@/components/Input";
-import InputData from "@/components/InputData";
-import Select from "@/components/Select";
+import Input from "@/components/Formulario/Input";
+import InputData from "@/components/Formulario/InputData";
+import Select from "@/components/Formulario/Select";
 import Titulo from "@/components/Titulo";
-import Toast from "@/components/Toast/Toast";
+import Toast from "@/components/toast/Toast";
 import database, { getTenant, maquinasCollection, tenantsCollection } from "@/db";
 import Maquina from "@/db/model/Maquina";
 import Tenant from "@/db/model/Tenant";

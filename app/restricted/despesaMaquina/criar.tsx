@@ -1,10 +1,10 @@
 import Botao from "@/components/Botao";
-import Input from "@/components/Input";
-import InputData from "@/components/InputData";
-import RadioSelect from "@/components/RadioSelect";
-import Select from "@/components/Select";
+import Input from "@/components/Formulario/Input";
+import InputData from "@/components/Formulario/InputData";
+import RadioSelect from "@/components/Formulario/RadioSelect";
+import Select from "@/components/Formulario/Select";
 import Titulo from "@/components/Titulo";
-import Toast from "@/components/Toast/Toast";
+import Toast from "@/components/toast/Toast";
 import database, { despesasMaquinasCollection, getTenant, maquinasCollection } from "@/db";
 import DespesaMaquina from "@/db/model/DespesaMaquina";
 import Maquina from "@/db/model/Maquina";

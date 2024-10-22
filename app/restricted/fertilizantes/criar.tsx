@@ -1,8 +1,8 @@
 import Botao from "@/components/Botao";
-import Input from "@/components/Input";
-import Select from "@/components/Select";
+import Input from "@/components/Formulario/Input";
+import Select from "@/components/Formulario/Select";
 import Titulo from "@/components/Titulo";
-import Toast from "@/components/Toast/Toast";
+import Toast from "@/components/toast/Toast";
 import database, { fertilizantesCollection } from "@/db";
 import Fertilizante from "@/db/model/Fertilizante";
 import TipoFertilizante from "@/utils/enums/TipoFertilizante";

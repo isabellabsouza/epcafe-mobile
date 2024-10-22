@@ -1,8 +1,8 @@
 import Botao from '@/components/Botao';
-import InfoFerTalhao from '@/components/despesaFerTalhao/InfoFerTalhao';
+import InfoFerTalhao from '@/components/depesaFertilizante/InfoFerTalhao';
 import InfoLinha from '@/components/InfoLinha';
 import Titulo from '@/components/Titulo';
-import Toast from '@/components/Toast/Toast';
+import Toast from '@/components/toast/Toast';
 import database, { despesasFerTalhoesCollection, despesasFertilizantesCollection, fertilizantesCollection, notasCollection } from '@/db';
 import DespesaFertilizante from '@/db/model/DespesaFertilizante';
 import TipoMecanico from '@/utils/enums/TipoMecanico';

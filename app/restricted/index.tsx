@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text } from 'react-native';
-import Card from '@/components/Card';
+import Card from '@/components/CardPadrao';
 import Subtitulo from '@/components/Subtitulo';
 import Titulo from '@/components/Titulo';
 import SyncButton from '@/components/navigation/SyncButton';
@@ -18,7 +18,7 @@ const cards = [
         rota: 'restricted/fertilizantes'
     },
     {
-        titulo: "Despesas com Máquinas",
+        titulo: "Despesas com Máquinas e Implementos",
         rota: 'restricted/despesaMaquina'
     },
     {

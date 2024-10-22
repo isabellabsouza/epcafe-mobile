@@ -1,7 +1,7 @@
 import Botao from '@/components/Botao';
 import InfoLinha from '@/components/InfoLinha';
 import Titulo from '@/components/Titulo';
-import Toast from '@/components/Toast/Toast';
+import Toast from '@/components/toast/Toast';
 import database, { despesasMaquinasCollection } from '@/db';
 import DespesaMaquina from '@/db/model/DespesaMaquina';
 import { withObservables } from '@nozbe/watermelondb/react';
