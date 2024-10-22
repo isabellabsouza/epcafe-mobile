@@ -12,9 +12,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function Maquinas() {
 
     const [nomeUnidade, setNomeUnidade] = useState<string | null>('');
-
+    const [filtroPesquisa, setFiltroPesquisa] = useState('');
+    const [filtroOrdenacao, setFiltroOrdenacao] = useState('');
+    
+    const filtrosOrdenacao = [
+        { nome: "Tipo", valor: "tipo" },
+        { nome: "Tipo Insumo", valor: "tipo_insumo" },
+        { nome: "Vida Útil", valor: "vida_util" },
+        { nome: "Modelo", valor: "modelo" },
+        { nome: "Data de Compra", valor: "data_compra" },
+        { nome: "Potência", valor: "potencia" },
+        { nome: "Valor", valor: "valor" },
+        { nome: "Consumo Médio", valor: "consumo_medio" },
+    ]
+    
+    //exibir unidade logada
     useEffect(() => {
-        const fetchNomeUnidade = async () => {
+        const buscarNomeUnidade = async () => {
             try {
                 const unidadeNome = await AsyncStorage.getItem("unidadeNome");
                 setNomeUnidade(unidadeNome);
@@ -22,27 +36,15 @@ export default function Maquinas() {
                 console.error("Erro ao buscar o nome da unidade:", error);
             }
         };
-        fetchNomeUnidade();
+        buscarNomeUnidade();
     }, []);
-
-    function goBack() {
-        router.replace('/restricted');
-    }
-
-    const filtrosOrdenacao = [
-        { nome: "Nome" },
-        { nome: "Vida Útil" },
-        { nome: "Modelo" },
-        { nome: "Data de Compra" },
-    ]
-
     
     return (
         <SafeAreaView style={{ flex: 1, paddingTop: -23}}>
             <Stack.Screen 
                 options={{
                     headerLeft: () => (
-                        <AntDesign name="arrowleft" size={24} color="black" onPress={goBack} />
+                        <AntDesign name="arrowleft" size={24} color="black" onPress={() => router.replace('/restricted')} />
                     ),
                     title: `\t\t\t\t ${nomeUnidade}` || "",
                 }} 
@@ -50,7 +52,7 @@ export default function Maquinas() {
 
             <ScrollView contentContainerStyle={styles.scrollContent} >
                 <Titulo titulo="Máquinas e Implementos" />
-                <CampoPesquisa />
+                <CampoPesquisa setFiltro={setFiltroPesquisa} />
                 <Botao nome="Adicionar" rota="/restricted/maquinas/criar" disabled={false}/>
                 <ScrollView 
                     contentContainerStyle={styles.containerFiltros} 
@@ -59,14 +61,17 @@ export default function Maquinas() {
                 >
                     {
                         filtrosOrdenacao.map(
-                            (item) => <Botao nome={item.nome} rota="/restricted/maquinas" key={item.nome} disabled={false} />
+                            (item) => 
+                                <Botao 
+                                    nome={item.nome}
+                                    key={item.valor}
+                                    onPress={() => setFiltroOrdenacao(item.valor)} 
+                                />
                         )
                     }
                 </ScrollView>
-                <CardLista />
+                <CardLista filtroPesquisa={filtroPesquisa} filtroOrdenacao={filtroOrdenacao} />
             </ScrollView>
-
-            
         </SafeAreaView>
     );
 }

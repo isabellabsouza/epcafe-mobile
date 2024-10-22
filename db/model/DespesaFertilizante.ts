@@ -4,9 +4,14 @@ import Fertilizante from "./Fertilizante";
 import NotaFiscal from "./NotaFiscal";
 import Tenant from "./Tenant";
 import Unidade from "./Unidade";
+import { Associations } from "@nozbe/watermelondb/Model";
 
 export default class DespesaFertilizante extends Model {
     static table = 'despesa_fertilizante'
+
+    static associations: Associations = {
+        fertilizante: { type: 'belongs_to', key: 'fertilizante_id' },
+    };
 
     @date('data') data!: Date;
     @text('medida') medida!: string;

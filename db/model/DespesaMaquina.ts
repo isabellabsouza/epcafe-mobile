@@ -3,9 +3,14 @@ import { date, field, readonly, relation, text } from "@nozbe/watermelondb/decor
 import Maquina from "./Maquina";
 import Tenant from "./Tenant";
 import Unidade from "./Unidade";
+import { Associations } from "@nozbe/watermelondb/Model";
 
 export default class DespesaMaquina extends Model {
     static table = 'despesa_maquina'
+
+    static associations: Associations = {
+        maquina: { type: 'belongs_to', key: 'maquina_id' }, // Associação com Maquina
+    };
 
     @date('data') data!: Date;
     @field('distancia_trabalhada') distanciaTrabalhada!: number;

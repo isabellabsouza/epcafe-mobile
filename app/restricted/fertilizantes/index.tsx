@@ -12,9 +12,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function Fertilizantes() {
 
     const [nomeUnidade, setNomeUnidade] = useState<string | null>('');
+    const [filtroPesquisa, setFiltroPesquisa] = useState('');
 
     useEffect(() => {
-        const fetchNomeUnidade = async () => {
+        const buscarNomeUnidade = async () => {
             try {
                 const unidadeNome = await AsyncStorage.getItem("unidadeNome");
                 setNomeUnidade(unidadeNome);
@@ -22,58 +23,50 @@ export default function Fertilizantes() {
                 console.error("Erro ao buscar o nome da unidade:", error);
             }
         };
-        fetchNomeUnidade();
+        buscarNomeUnidade();
     }, []);
-    
-    function goBack() {
-        router.replace('/restricted');
-    }
+
     return (
-        <SafeAreaView style={{ flex: 1, paddingTop: -23}}>
-            <Stack.Screen 
+        <SafeAreaView style={{ flex: 1, paddingTop: -23 }}>
+            <Stack.Screen
                 options={{
                     headerLeft: () => (
-                        <AntDesign name="arrowleft" size={24} color="black" onPress={goBack} />
+                        <AntDesign name="arrowleft" size={24} color="black" onPress={() => router.replace('/restricted')} />
                     ),
                     title: `\t\t\t\t ${nomeUnidade}` || "",
-                }} 
+                }}
             />
 
             <ScrollView contentContainerStyle={styles.scrollContent} >
                 <Titulo titulo="Fertilizantes e Defensivos" />
-                <CampoPesquisa />
-                <Botao nome="Adicionar" rota="/restricted/fertilizantes/criar" disabled={false}/>
-                <ScrollView 
-                    contentContainerStyle={styles.containerFiltros} 
+                <CampoPesquisa setFiltro={setFiltroPesquisa} />
+                <Botao nome="Adicionar" rota="/restricted/fertilizantes/criar" disabled={false} />
+                <ScrollView
+                    contentContainerStyle={styles.containerFiltros}
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}
                 >
-                    {/* {
-                        filtrosOrdenacao.map(
-                            (item) => <Botao nome={item.nome} rota="/restricted/maquinas" key={item.nome} disabled={false} />
-                        )
-                    } */}
+
                 </ScrollView>
-                <CardLista />
+                <CardLista filtroPesquisa={filtroPesquisa} />
             </ScrollView>
 
-            
+
         </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
-    
+
     scrollContent: {
         padding: 17,
-        flexGrow: 1, 
+        flexGrow: 1,
     },
     containerFiltros: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         marginBottom: 15,
         gap: 10,
-        //marginVertical: 10,
     }
-    
+
 })

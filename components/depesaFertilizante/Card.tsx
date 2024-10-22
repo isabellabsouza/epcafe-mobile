@@ -1,4 +1,5 @@
 import DespesaFertilizante from "@/db/model/DespesaFertilizante";
+import Fertilizante from "@/db/model/Fertilizante";
 import withObservables from "@nozbe/watermelondb/react/withObservables";
 import { Link } from "expo-router";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
@@ -6,13 +7,23 @@ import { TouchableOpacity, Text, StyleSheet } from "react-native";
 interface CardProps {
     despesaFertilizante: DespesaFertilizante;
     rota: string;
+    fertilizante: Fertilizante;
 }
-function Card({ despesaFertilizante, rota }: CardProps) {
+function Card({ despesaFertilizante, rota, fertilizante }: CardProps) {
     return (
         <Link href={{ pathname: rota as any, params: { id: despesaFertilizante.id } }} asChild>
             <TouchableOpacity style={styles.cardContainer}>
-                <Text style={styles.titulo}>{despesaFertilizante.data.toLocaleDateString()}</Text>
-                <Text style={styles.info}>{despesaFertilizante.fertilizante.nome}</Text>
+                <Text style={styles.titulo}>{fertilizante.nome}</Text>
+                <Text style={styles.info}>{despesaFertilizante.data.toLocaleDateString()}</Text>
+                <Text style={styles.info}>
+                    {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    })
+                        .format(despesaFertilizante.valorTotal)
+                        .replace('R$', 'R$ ')
+                    }
+                </Text>
             </TouchableOpacity>
         </Link>
     )
@@ -22,6 +33,7 @@ const enhance = withObservables(
     ['despesaFertilizante'],
     ({ despesaFertilizante }: CardProps) => ({
         despesaFertilizante,
+        fertilizante: despesaFertilizante.fertilizante.observe()
     })
 );
 
@@ -31,18 +43,19 @@ export default enhance(Card);
 const styles = StyleSheet.create({
     cardContainer: {
         backgroundColor: '#D9D9D9',
-        padding: 10,
-        paddingLeft: 15,
+        paddingVertical: 15,
+        paddingHorizontal: 12,
         marginVertical: 10,
         width: '48%',
         borderRadius: 20,
-        gap: 5
     },
     titulo: {
         fontSize: 19,
-
+        fontWeight: 'bold',
+        marginBottom: 10
     },
     info: {
-        fontSize: 15
+        fontSize: 15,
+        marginBottom: 5
     }
 })

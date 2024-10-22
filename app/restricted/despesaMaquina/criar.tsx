@@ -298,7 +298,7 @@ export default function CriarDespesaMaquina() {
                     novaDespesa.maquina.id = maquina.value;
                     novaDespesa.precoUnitarioCombustivel = parseFloat(precoUnitarioCombustivel);
                     novaDespesa.fatorPotencia = fatorPotencia;
-                    novaDespesa.unidadeHoras = unidadeHoras === 'true';
+                    novaDespesa.unidadeHoras = selectedId === '0' ? false : true;
                     novaDespesa.tempoTrabalhado = parseFloat(tempoTrabalhado);
                     novaDespesa.distanciaTrabalhada = parseFloat(distanciaTrabalhada);
                     novaDespesa.valorTotal = valorTotal;

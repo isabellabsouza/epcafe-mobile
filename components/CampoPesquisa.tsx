@@ -2,15 +2,17 @@ import { useState } from "react";
 import { TextInput, View, StyleSheet, Button } from "react-native"
 import { Ionicons } from '@expo/vector-icons';
 
+interface CampoPesquisaProps {
+    setFiltro: (valor: string) => void;
+}
 
-export default function CampoPesquisa() {
+export default function CampoPesquisa({ setFiltro }: CampoPesquisaProps) {
      const [pesquisa, setPesquisa] = useState('');
     
 
-    const pesquisar = () => {
-        console.warn("Pesquisando por: " + pesquisa);
-
-        setPesquisa('');
+    const pesquisar = (text: string) => {
+        setPesquisa(text);
+        setFiltro(text);
     }
 
     return (
@@ -19,12 +21,11 @@ export default function CampoPesquisa() {
                 <Ionicons name="search-sharp" size={24} color="black" />
                 <TextInput
                     value={pesquisa}
-                    onChangeText={setPesquisa}
+                    onChangeText={pesquisar}
                     placeholder="Pesquisar"
-                    style={styles.input} />
-
+                    style={styles.input} 
+                />
             </View>
-            {/* {pesquisa && <Button title="Pesquisar" onPress={pesquisar} /> } */}
         </View>
     );
     

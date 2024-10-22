@@ -4,6 +4,7 @@ import { withObservables } from '@nozbe/watermelondb/react';
 import { StyleSheet, View } from "react-native";
 import Card from "./Card";
 import DespesaFertilizante from "@/db/model/DespesaFertilizante";
+import { Q } from "@nozbe/watermelondb";
 
 function ListaCards({ despesasFertilizantes }: { despesasFertilizantes: DespesaFertilizante[] }) {
 
@@ -27,9 +28,29 @@ function ListaCards({ despesasFertilizantes }: { despesasFertilizantes: DespesaF
 
 }
 
-const enhance = withObservables([], () => ({
-    despesasFertilizantes: despesasFertilizantesCollection.query(),
-}));
+interface ListaCardsProps {
+    filtroPesquisa: string;
+    filtroOrdenacao: string;
+}
+
+const enhance = withObservables(
+    ['filtroPesquisa', 'filtroOrdenacao'], 
+    ({filtroPesquisa, filtroOrdenacao}: ListaCardsProps) => ({
+        despesasFertilizantes: despesasFertilizantesCollection.query(
+            ...(filtroPesquisa
+                ? [Q.on(
+                    'fertilizante', 
+                    Q.where('nome', Q.like(`%${filtroPesquisa}%`))
+                    )]
+                : []),
+            Q.sortBy(filtroOrdenacao || 'data', 'asc')
+        ),
+    })
+);
+
+// const enhance = withObservables([], () => ({
+//     despesasFertilizantes: despesasFertilizantesCollection.query(),
+// }));
 
 export default enhance(ListaCards);
 

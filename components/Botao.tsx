@@ -1,5 +1,5 @@
-import { Href, Link, router } from "expo-router";
-import { TouchableOpacity, StyleSheet, Text } from "react-native";
+import { Href, router } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 interface BotaoProps {
     nome: string,
@@ -20,15 +20,6 @@ export default function Botao({ nome, rota, onPress, disabled=false }: BotaoProp
     };
 
     return (
-        // <Link href={rota as unknown as Href<string | object>} asChild>
-        //     <TouchableOpacity 
-        //         style={styles.botao}
-        //         onPress={handlePress} 
-        //     >
-        //         <Text style={styles.textoBotao}>{nome}</Text>
-        //     </TouchableOpacity>
-        // </Link>
-
         <TouchableOpacity
             style={styles.botao}
             onPress={handlePress}
@@ -50,8 +41,10 @@ const styles = StyleSheet.create({
         elevation: 2,
         marginBottom: 15,
         marginTop: 15,
+        paddingHorizontal: 10,
     },
     textoBotao: {
         fontSize: 18,
+        textAlign: 'center',
     }
 })
