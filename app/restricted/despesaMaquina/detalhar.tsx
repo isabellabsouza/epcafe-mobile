@@ -2,17 +2,18 @@ import Botao from '@/components/Botao';
 import InfoLinha from '@/components/InfoLinha';
 import Titulo from '@/components/Titulo';
 import Toast from '@/components/toast/Toast';
-import database, { despesasMaquinasCollection } from '@/db';
+import database, { despesasMaquinasCollection, maquinasCollection } from '@/db';
 import DespesaMaquina from '@/db/model/DespesaMaquina';
 import { withObservables } from '@nozbe/watermelondb/react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 function detalharDespesaMaquina({ despesaMaquina }: { despesaMaquina: DespesaMaquina }) {
 
     const { id } = useLocalSearchParams();
     const [modalVisible, setModalVisible] = useState(false);
+    const [nomeMaquina, setNomeMaquina] = useState('');
 
     //variáveis para o toast
     const [toast, setToast] = useState(false);
@@ -30,24 +31,54 @@ function detalharDespesaMaquina({ despesaMaquina }: { despesaMaquina: DespesaMaq
             await despesaMaquina.markAsDeleted();
         });
         setGravidade('sucesso');
-        setMensagem('Despesa excluída com sucesso!');    
+        setMensagem('Despesa excluída com sucesso!');
         setToast(true);
-        setTimeout(() => {router.back()}, 3000);
+        setTimeout(() => { router.back() }, 3000);
         console.log("Despesa excluída com sucesso.");
     };
+
+    useEffect(() => {
+        const buscarMaquina = async () => {
+            try {
+                const maquinaEncontrada = await maquinasCollection.find(despesaMaquina.maquina.id);
+                setNomeMaquina(maquinaEncontrada.nome);
+            } catch (error) {
+                console.error("Erro ao buscar a máquina:", error);
+            }
+        }
+        buscarMaquina();
+    }, [])
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContent}>
             <Titulo titulo="Despesa" />
 
             <InfoLinha label="Data" valor={despesaMaquina.data.toLocaleDateString()} />
-            <InfoLinha label="Distância Trabalhada" valor={String(despesaMaquina.distanciaTrabalhada)} />
+            <InfoLinha label="Distância Trabalhada" valor={String(despesaMaquina.distanciaTrabalhada) + " km"} />
             <InfoLinha label="Fator de Potência" valor={despesaMaquina.fatorPotencia} />
-            <InfoLinha label="Preço do Combustível" valor={despesaMaquina.precoUnitarioCombustivel} />
-            <InfoLinha label="Unidade em Horas" valor={despesaMaquina.unidadeHoras ? 'Sim' : 'Não'} />
-            <InfoLinha label="Tempo Trabalhado" valor={String(despesaMaquina.tempoTrabalhado)} />
-            <InfoLinha label="Máquina" valor={despesaMaquina.maquina.id} />
-            <InfoLinha label="Valor Total" valor={despesaMaquina.valorTotal} />
+            <InfoLinha 
+                label="Preço do Combustível" 
+                valor={new Intl.NumberFormat('pt-BR', { 
+                    style: 'currency', currency: 'BRL' 
+                }).format(despesaMaquina.precoUnitarioCombustivel)
+                .replace('R$', 'R$ ')
+                } 
+            />
+            <InfoLinha 
+                label="Tempo Trabalhado" 
+                valor={
+                    `${String(despesaMaquina.tempoTrabalhado)} ${despesaMaquina.unidadeHoras == false ? " horas" : " minutos"}`
+                } 
+            />
+            <InfoLinha label="Máquina" valor={nomeMaquina} />
+            <InfoLinha
+                label="Valor Total"
+                valor={new Intl.NumberFormat('pt-BR', { 
+                    style: 'currency', currency: 'BRL' 
+                }).format(despesaMaquina.valorTotal)
+                .replace('R$', 'R$ ')
+                }
+            />
 
             <Modal
                 animationType="slide"
@@ -82,16 +113,16 @@ function detalharDespesaMaquina({ despesaMaquina }: { despesaMaquina: DespesaMaq
                 </View>
             </Modal>
 
-            
+
 
             <View style={styles.botoesContainer}>
                 <Botao nome="Editar" rota={`/restricted/despesaMaquina/criar?id=${id}`} />
                 <Botao nome="Excluir" onPress={() => setModalVisible(true)} />
             </View>
-            {toast && 
-                <Toast setToast={ setToast } 
-                    mensagem={mensagem} 
-                    gravidade={gravidade} 
+            {toast &&
+                <Toast setToast={setToast}
+                    mensagem={mensagem}
+                    gravidade={gravidade}
                 />
             }
         </ScrollView>

@@ -8,6 +8,7 @@ interface InputProps {
     onPress?: () => void;
     keyboard?: KeyboardTypeOptions,
     showKeyboard?: boolean,
+    secureTextEntry?: boolean
 }
 export default function Input({
         label, 
@@ -17,6 +18,7 @@ export default function Input({
         onPress, 
         keyboard='default', 
         showKeyboard=true,
+        secureTextEntry=false
     }: InputProps) {
 
     return (
@@ -31,6 +33,7 @@ export default function Input({
                 keyboardType={keyboard}
                 showSoftInputOnFocus={showKeyboard}
                 autoComplete="off"
+                secureTextEntry={secureTextEntry}
             />
         </>
     )

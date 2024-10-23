@@ -1,16 +1,14 @@
 import Botao from "@/components/Botao";
 import Input from "@/components/Formulario/Input";
 import InputData from "@/components/Formulario/InputData";
-import RadioSelect from "@/components/Formulario/RadioSelect";
 import Select from "@/components/Formulario/Select";
 import Titulo from "@/components/Titulo";
 import Toast from "@/components/toast/Toast";
-import database, { despesasMaquinasCollection, getTenant, maquinasCollection } from "@/db";
+import database, { despesasMaquinasCollection, maquinasCollection } from "@/db";
 import DespesaMaquina from "@/db/model/DespesaMaquina";
-import Maquina from "@/db/model/Maquina";
-import Tenant from "@/db/model/Tenant";
 import FatorPotencia from "@/utils/enums/FatorPotencia";
-import TipoCalculo from "@/utils/enums/TipoCalculo";
+import { buscarTenantId, buscarUnidadeId } from "@/utils/functions/Storage";
+import { Q } from "@nozbe/watermelondb";
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
@@ -20,34 +18,34 @@ export default function CriarDespesaMaquina() {
     function converterHoraParaMinuto(tempo: number) {
         return tempo * 60;
     }
-    
+
     function calcularValorTotal(despesaMaquina: any) {
-        console.log("Entrou")
+        console.log("Calculando valor total da despesa...");
         let valor = 0;
-        
-        console.log("tipoCalculo: ", maquina.TipoCalculo)
-        console.log("consumoMedio: ", maquina.consumoMedio)
-        console.log("potencia: ", fatorPotencia.valor)
-        console.log("Unidade Horas: ", selectedId)
-        //const { tipoCalculo, potencia, consumoMedio } = despesaMaquina.maquina;
+
+        //@ts-ignore
         const tipoCalculo = maquina.tipoCalculo;
+        //@ts-ignore
         const consumoMedio = maquina.consumoMedio;
+        //@ts-ignore
         const potencia = maquina.potencia;
+
         const tempoConvertido = selectedId === '0'
             ? converterHoraParaMinuto(parseFloat(tempoTrabalhado))
             : parseFloat(tempoTrabalhado);
-    
+
         switch (tipoCalculo) {
             case 'TRATOR':
                 valor = (
                     potencia *
+                    //@ts-ignore
                     (fatorPotencia.valor / 100) *
                     0.15 *
                     parseFloat(precoUnitarioCombustivel) *
                     (tempoConvertido / 60)
                 );
                 break;
-    
+
             case 'NAO_TRATOR':
                 valor = (
                     potencia *
@@ -56,7 +54,7 @@ export default function CriarDespesaMaquina() {
                     (tempoConvertido / 60)
                 );
                 break;
-    
+
             case 'ENERGIA_ELETRICA':
                 valor = (
                     potencia *
@@ -65,7 +63,7 @@ export default function CriarDespesaMaquina() {
                     (tempoConvertido / 60)
                 );
                 break;
-    
+
             case 'DISTANCIA':
                 valor = (
                     parseFloat(distanciaTrabalhada) /
@@ -73,15 +71,15 @@ export default function CriarDespesaMaquina() {
                     parseFloat(precoUnitarioCombustivel)
                 );
                 break;
-    
+
             default:
                 valor = 0;
                 break;
         }
-    
+
         return Number(valor.toFixed(2));
     }
-    
+
 
     const { id } = useLocalSearchParams();
 
@@ -99,17 +97,16 @@ export default function CriarDespesaMaquina() {
     const [distanciaTrabalhada, setDistanciaTrabalhada] = useState('');
     const [fatorPotencia, setFatorPotencia] = useState('');
     const [precoUnitarioCombustivel, setPrecoUnitarioCombustivel] = useState('');
-    const [valorTotal, setValorTotal] = useState('');
+    const [valorTotal, setValorTotal] = useState(0);
     const [unidadeHoras, setUnidadeHoras] = useState<boolean>(false);
     const [tempoTrabalhado, setTempoTrabalhado] = useState('');
     const [maquina, setMaquina] = useState('');
-    const [unidade, setUnidade] = useState<any>();
-    const [tenant, setTenant] = useState<Tenant>();
+    const [unidade, setUnidade] = useState<string | null>('');
+    const [tenant, setTenant] = useState<string | null>('');
 
     // definição das listas de opções para os selects
     const [maquinas, setMaquinas] = useState<any[]>([]);
     const listaFatorPotencia = Array.from(Object.keys(FatorPotencia))
-        .filter(key => key !== 'getNome')
         .map((key) => {
             const item = FatorPotencia[key as keyof typeof FatorPotencia];
             if (typeof item === 'object' && 'description' in item) {
@@ -122,6 +119,7 @@ export default function CriarDespesaMaquina() {
             return null;
         })
         .filter(item => item !== null);
+
     const opcaoUnidadeTempo: RadioButtonProps[] = useMemo(() => ([
         {
             id: '0',
@@ -135,21 +133,66 @@ export default function CriarDespesaMaquina() {
         }
     ]), []);
 
+    useEffect(() => {
+        const buscarTenantUnidade = async () => {
+            const tenantId = await buscarTenantId();
+            setTenant(tenantId);
+            console.log('tenantId', tenant);
+
+            const unidadeId = await buscarUnidadeId();
+            setUnidade(unidadeId);
+            console.log('unidadeId', unidade);
+        };
+        buscarTenantUnidade();
+    }, []);
+
+    useEffect(() => {
+        const buscarMaquinas = async () => {
+            if (tenant && unidade) {
+                try {
+                    const maquinasEncontradas =
+                        await maquinasCollection.query(
+                            Q.where('tenant_id', Q.eq(tenant))
+                        ).fetch();
+
+                    const maquinas = maquinasEncontradas.map((maquina) => {
+                        return {
+                            label: maquina.nome,
+                            value: maquina.id,
+                            tipoCalculo: maquina.tipoCalculo,
+                            consumoMedio: maquina.consumoMedio,
+                            potencia: maquina.potencia,
+                        }
+                    })
+                    setMaquinas(maquinas);
+
+                } catch (error) {
+                    console.error("Erro ao buscar as máquinas:", error);
+                }
+            }
+        };
+        if (tenant && unidade) {
+            buscarMaquinas();
+        }
+    }, [tenant, unidade]);
+
     //edição de máquinas e implementos
     useEffect(() => {
         if (id) {
+            let valorTotal = calcularValorTotal(despesaMaquina);
             //se for passado um id, buscar a máquina para edição
             const fetchDespesaMaquina = async () => {
                 try {
                     const despesaMaquinaEncontrada = await despesasMaquinasCollection.find(String(id));
+                    
+                    //console.log("UnidadeTempo ", despesaMaquinaEncontrada.unidadeHoras)
                     setDespesaMaquina(despesaMaquinaEncontrada);
-
                     setData(despesaMaquinaEncontrada.data);
                     setDistanciaTrabalhada(despesaMaquinaEncontrada.distanciaTrabalhada.toString());
                     setFatorPotencia(despesaMaquinaEncontrada.fatorPotencia.toString());
                     setPrecoUnitarioCombustivel(despesaMaquinaEncontrada.precoUnitarioCombustivel.toString());
-                    setValorTotal(despesaMaquinaEncontrada.valorTotal.toString());
-                    setUnidadeHoras(despesaMaquinaEncontrada.unidadeHoras.toString());
+                    setValorTotal(valorTotal);
+                    setUnidadeHoras(despesaMaquinaEncontrada.unidadeHoras);
                     setTempoTrabalhado(despesaMaquinaEncontrada.tempoTrabalhado.toString());
                     setMaquina(despesaMaquinaEncontrada.maquina.id);
 
@@ -162,112 +205,27 @@ export default function CriarDespesaMaquina() {
         }
     }, [id]);
 
-    useEffect(() => {
-        const fetchMaquinas = async () => {
-            try {
-                const maquinasEncontradas = await maquinasCollection.query().fetch();
 
-                const maquinas = maquinasEncontradas.map((maquina) => {
-                    return {
-                        label: maquina.nome,
-                        value: maquina.id,
-                        tipoCalculo: maquina.tipoCalculo,
-                        consumoMedio: maquina.consumoMedio,
-                        potencia: maquina.potencia,
-                    }
-                })
-                setMaquinas(maquinas);
-                console.log("Maquinas:", maquinasEncontradas);
-            } catch (error) {
-                console.error("Erro ao buscar as máquinas:", error);
-            }
-        };
-        fetchMaquinas();
-    }, []);
-
-    useEffect(() => {
-        const fetchTenant = async () => {
-            try {
-                const fetchedTenant = await getTenant;
-                setTenant(fetchedTenant);
-                console.log("Tenant:", fetchedTenant.tenant);
-            } catch (error) {
-                console.error("Erro ao buscar o tenant:", error);
-            }
-        };
-        fetchTenant();
-    }, []);
-
-    // const salvarDespesaMaquina = async () => {
-    //     const novaDespesa: {
-    //         data: Date | undefined;
-    //         distanciaTrabalhada: number;
-    //         fatorPotencia: number;
-    //         precoUnitarioCombustivel: number;
-    //         unidadeHoras: boolean;
-    //         tempoTrabalhado: number;
-    //         maquina: any;
-    //         valorTotal?: number;
-    //     } = {
-    //         data,
-    //         distanciaTrabalhada: parseFloat(distanciaTrabalhada) || 0,
-    //         fatorPotencia: parseFloat(fatorPotencia) || 0,
-    //         precoUnitarioCombustivel: parseFloat(precoUnitarioCombustivel) || 0,
-    //         unidadeHoras: unidadeHoras === 'true',
-    //         tempoTrabalhado: parseFloat(tempoTrabalhado) || 0,
-    //         maquina: maquinas.find(m => m.value === maquina),
-    //     };
-    
-    //     // Calcular o valor total
-    //     const valorCalculado = calcularValorTotal(novaDespesa);
-    //     novaDespesa.valorTotal = valorCalculado;
-    
-    //     try {
-    //         if (despesaMaquina) {
-    //             // Atualizar despesa existente
-    //             await database.write(async () => {
-    //                 await despesaMaquina.update((d) => {
-    //                     Object.assign(d, novaDespesa);
-    //                 });
-    //             });
-    //         } else {
-    //             // Criar nova despesa
-    //             await database.write(async () => {
-    //                 await despesasMaquinasCollection.create((novaDespesaDB) => {
-    //                     Object.assign(novaDespesaDB, novaDespesa);
-    //                 });
-    //             });
-    //         }
-    
-    //         setGravidade('sucesso');
-    //         setMensagem('Despesa salva com sucesso!');
-    //     } catch (error) {
-    //         setGravidade('erro');
-    //         setMensagem('Erro ao salvar a despesa');
-    //         console.error('Erro ao salvar a despesa:', error);
-    //     } finally {
-    //         setToast(true);
-    //     }
-    // };
-    
 
     //salvar despesa maquina
     const salvarDespesaMaquina = async () => {
         if (despesaMaquina) {
-
+            let valorTotal = calcularValorTotal(despesaMaquina);
             // Se a despesa já existe, atualizar
             await database.write(async () => {
                 await despesaMaquina.update((d) => {
                     d.data = data!;
                     d.distanciaTrabalhada = parseFloat(distanciaTrabalhada);
-                    d.fatorPotencia = fatorPotencia;
+                    //@ts-ignore
+                    d.fatorPotencia = fatorPotencia.value.toString();
                     d.precoUnitarioCombustivel = parseFloat(precoUnitarioCombustivel);
-                    d.valorTotal = parseFloat(valorTotal);
-                    d.unidadeHoras = unidadeHoras === 'true';
+                    d.valorTotal = valorTotal;
+                    d.unidadeHoras = selectedId === '0' ? false : true;
                     d.tempoTrabalhado = parseFloat(tempoTrabalhado);
                     //@ts-ignore
                     d.maquina.id = maquina.value;
-                    console.log('despesa editada', d)
+                    //@ts-ignore
+                    d.unidade.id = unidade;
 
                 });
             }).then(() => {
@@ -287,23 +245,23 @@ export default function CriarDespesaMaquina() {
         } else {
             // Se a despesa não existe, criar
             let valorTotal = calcularValorTotal(despesaMaquina);
-            console.log('valorTotal', valorTotal);
             await database.write(async () => {
                 await despesasMaquinasCollection.create((novaDespesa) => {
 
-                    novaDespesa.data = data!; //FIXME: data não pode ser nula
-                    //@ts-ignore
-                    // novaDespesa.maquina.set(maquina);
+                    novaDespesa.data = data!;
                     //@ts-ignore
                     novaDespesa.maquina.id = maquina.value;
                     novaDespesa.precoUnitarioCombustivel = parseFloat(precoUnitarioCombustivel);
-                    novaDespesa.fatorPotencia = fatorPotencia;
+                    //@ts-ignore
+                    novaDespesa.fatorPotencia = fatorPotencia.value.toString();
                     novaDespesa.unidadeHoras = selectedId === '0' ? false : true;
                     novaDespesa.tempoTrabalhado = parseFloat(tempoTrabalhado);
                     novaDespesa.distanciaTrabalhada = parseFloat(distanciaTrabalhada);
                     novaDespesa.valorTotal = valorTotal;
                     //@ts-ignore
-                    //novaDespesa.tenant.set(tenant);
+                    novaDespesa.tenant.id = tenant;
+                    //@ts-ignore
+                    novaDespesa.unidade.id = unidade;
                     console.log('novaDespesa', novaDespesa);
 
 
@@ -329,29 +287,25 @@ export default function CriarDespesaMaquina() {
         <ScrollView contentContainerStyle={styles.scrollContent} >
             <Titulo titulo={titulo}></Titulo>
 
-            {/* {
-                FormFactory.createForm(maquinasCollection, montaObject, [], maquina)
-            } */}
-
             <InputData
                 label="Data"
                 placeholder="Selecione a data da despesa"
                 value={data?.toDateString() || ''}
-                onChangeText={(text) => {console.log('text :)', text); setData(text)}}
+                onChangeText={(text) => { console.log('text :)', text); setData(text) }}
             />
 
             <Select
                 dados={maquinas}
-                onChange={(value) =>
-                {
+                onChange={(value) => {
                     setMaquina(value)
                     console.log('maquina', maquina)
                 }
-                    
-                    }
+
+                }
                 value={maquina}
                 placeholder="Selecione a máquina/implemento"
                 label="Máquina/Implemento"
+                
             />
 
             <Input
@@ -359,6 +313,7 @@ export default function CriarDespesaMaquina() {
                 placeholder="R$ 00,00"
                 value={precoUnitarioCombustivel}
                 onChangeText={(text) => setPrecoUnitarioCombustivel(text)}
+                keyboard="numeric"
             />
 
             <Select
@@ -369,28 +324,19 @@ export default function CriarDespesaMaquina() {
                 label="Fator de potência"
             />
 
-            {/* <RadioSelect
-                label="Unidade de tempo"
-                dados={opcaoUnidadeTempo}
-                onChange={(value) => {
-                    const isHoras = value === 'Horas'; // Verifica se a opção é "Horas"
-                    setUnidadeHoras(isHoras); // Armazena 'true' ou 'false' como string
-                }}
-            /> */}
-
-            <RadioGroup
-                radioButtons={opcaoUnidadeTempo}
-                onPress={setSelectedId}
-                selectedId={selectedId}
-                containerStyle={styles.radioContainer}
-            />
-
             <Input
                 label="Tempo trabalhado"
                 placeholder="Informe o tempo trabalhado"
                 value={tempoTrabalhado}
                 onChangeText={(text) => setTempoTrabalhado(text)}
                 keyboard="numeric"
+            />
+
+            <RadioGroup
+                radioButtons={opcaoUnidadeTempo}
+                onPress={setSelectedId}
+                selectedId={selectedId}
+                containerStyle={styles.radioContainer}
             />
 
             <Input

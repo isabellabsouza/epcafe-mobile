@@ -1,17 +1,16 @@
 import Botao from "@/components/Botao";
-import MontaObject from "@/components/FormFactory/MontaObject";
 import Input from "@/components/Formulario/Input";
 import InputData from "@/components/Formulario/InputData";
 import Select from "@/components/Formulario/Select";
 import Titulo from "@/components/Titulo";
 import Toast from "@/components/toast/Toast";
-import database, { getTenant, maquinasCollection, tenantsCollection } from "@/db";
+import database, { maquinasCollection } from "@/db";
 import Maquina from "@/db/model/Maquina";
-import Tenant from "@/db/model/Tenant";
 import TipoCalculo from "@/utils/enums/TipoCalculo";
 import TipoCombustivel from "@/utils/enums/TipoCombustivel";
 import TipoInsumoMecanico from "@/utils/enums/TipoInsumoMecanico";
 import TipoMecanico from "@/utils/enums/TipoMecanico";
+import { buscarTenantId } from "@/utils/functions/Storage";
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
@@ -30,9 +29,9 @@ export default function CriarMaquina() {
 
     // variáveis de estado para os campos do formulário
     const [tipoInsumo, setTipoInsumo] = useState<any>();
-    const [tipo, setTipo] = useState<any>( {label: '', value: ''} );
-    const [tipoCombustivel, setTipoCombustivel] = useState<any>( {label: '', value: ''} );
-    const [tipoCalculo, setTipoCalculo] = useState<any>( {label: '', value: ''} );
+    const [tipo, setTipo] = useState<any>({ label: '', value: '' });
+    const [tipoCombustivel, setTipoCombustivel] = useState<any>({ label: '', value: '' });
+    const [tipoCalculo, setTipoCalculo] = useState<any>({ label: '', value: '' });
     const [potencia, setPotencia] = useState('');
     const [consumoMedio, setConsumoMedio] = useState('');
     const [nome, setNome] = useState('');
@@ -40,7 +39,7 @@ export default function CriarMaquina() {
     const [valor, setValor] = useState('');
     const [dataCompra, setDataCompra] = useState('');
     const [vidaUtil, setVidaUtil] = useState('');
-    const [tenant, setTenant] = useState<Tenant>();
+    const [tenant, setTenant] = useState<string | null>(null);
 
     // definição da lista de renderização dinamica de tipos   
     const [tipos, setTipos] = useState<any[]>([]);
@@ -52,7 +51,7 @@ export default function CriarMaquina() {
             value: key,
         }
     })
-    
+
     const tiposCalculos = Array.from(Object.keys(TipoCalculo)).map((key, index) => {
         return {
             label: Array.from(Object.values(TipoCalculo))[index].toString(),
@@ -71,11 +70,11 @@ export default function CriarMaquina() {
     //atualiza a lista de tipos de acordo com o tipo de insumo selecionado
     useEffect(() => {
         console.log('tipoInsumo', tipoInsumo)
-        if(tipoInsumo?.label === ''){
+        if (tipoInsumo?.label === '') {
             setTipos([]);
             return;
         }
-        if(tipoInsumo?.label === TipoInsumoMecanico.MAQUINA){
+        if (tipoInsumo?.label === TipoInsumoMecanico.MAQUINA) {
             console.log("setting tipos maquina")
             setTipos(Array.from(Object.keys(TipoMecanico.MAQUINAS)).map((key, index) => {
                 return {
@@ -84,7 +83,7 @@ export default function CriarMaquina() {
                 }
             }))
         }
-        if(tipoInsumo?.label === TipoInsumoMecanico.IMPLEMENTO){
+        if (tipoInsumo?.label === TipoInsumoMecanico.IMPLEMENTO) {
             console.log("setting tipos implemento")
             setTipos(Array.from(Object.keys(TipoMecanico.IMPLEMENTOS)).map((key, index) => {
                 // console.log(Array.from(Object.values(TipoMecanico.IMPLEMENTOS))[index].nome)
@@ -102,7 +101,7 @@ export default function CriarMaquina() {
     useEffect(() => {
         if (id) {
             //se for passado um id, buscar a máquina para edição
-            const fetchMaquina = async () => {
+            const buscarMaquina = async () => {
                 try {
                     const maquinaEncontrada = await maquinasCollection.find(String(id));
                     setMaquina(maquinaEncontrada);
@@ -137,30 +136,22 @@ export default function CriarMaquina() {
                 }
             };
 
-            fetchMaquina();
+            buscarMaquina();
         }
     }, [id]);
 
     useEffect(() => {
-        const fetchTenant = async () => {
-            const tenants = await tenantsCollection.query().fetch();
-            console.log("Tenants:", tenants);
-            try {
-                const fetchedTenant = await getTenant;
-                setTenant(fetchedTenant);
-                console.log("Tenant:", fetchedTenant.tenant);
-            } catch (error) {
-                console.error("Erro ao buscar o tenant:", error);
-            }
+        const buscarTenant = async () => {
+            const tenantId = await buscarTenantId();
+            setTenant(tenantId);
         };
-        fetchTenant();
+        buscarTenant();
     }, []);
 
 
     //salvar máquina ou implemento
     const salvarMaquina = async () => {
         if (maquina) {
-            //let values = montaObject;
             // Se a máquina já existe, atualizar
             await database.write(async () => {
                 await maquina.update((m) => {
@@ -195,11 +186,10 @@ export default function CriarMaquina() {
             });
 
         } else {
-            //setTenant(await getTenant);
-
+            // Se a máquina não existe, criar
             await database.write(async () => {
                 await maquinasCollection.create((novaMaquina) => {
-                    
+
                     novaMaquina.nome = nome;
                     novaMaquina.consumoMedio = parseFloat(consumoMedio);
                     novaMaquina.dataCompra = new Date(dataCompra);
@@ -212,12 +202,24 @@ export default function CriarMaquina() {
                     novaMaquina.valor = parseFloat(valor);
                     novaMaquina.vidaUtil = parseInt(vidaUtil);
                     //@ts-ignore
-                    novaMaquina.tenant.set(tenant);
+                    novaMaquina.tenant.id = tenant;
                     console.log('novaMaquina', novaMaquina);
 
 
                 });
             }).then(() => {
+
+                setNome('');
+                setConsumoMedio('');
+                setDataCompra('');
+                setModelo('');
+                setPotencia('');
+                setTipo({ label: '', value: '' });
+                setTipoCalculo({ label: '', value: '' });
+                setTipoCombustivel({ label: '', value: '' });
+                setTipoInsumo({ label: '', value: '' });
+                setValor('');
+                setVidaUtil('');
 
                 setGravidade('sucesso');
                 setMensagem('Máquina criada com sucesso!');
@@ -238,39 +240,35 @@ export default function CriarMaquina() {
         <ScrollView contentContainerStyle={styles.scrollContent} >
             <Titulo titulo={titulo}></Titulo>
 
-            {/* {
-                FormFactory.createForm(maquinasCollection, montaObject, [], maquina)
-            } */}
-
             <Select
                 dados={tiposInsumosMecanicos}
-                onChange={(value) => setTipoInsumo(value)} 
+                onChange={(value) => setTipoInsumo(value)}
                 value={tipoInsumo}
-                placeholder="Selecione o tipo de insumo" 
+                placeholder="Selecione o tipo de insumo"
                 label="Tipo de insumo"
             />
 
             <Select
                 dados={tipos}
-                onChange={(value) => setTipo(value)} 
+                onChange={(value) => setTipo(value)}
                 value={tipo}
-                placeholder={"Selecione o tipo de " + (tipoInsumo?.label ?? 'Máquina/Implemento')} 
+                placeholder={"Selecione o tipo de " + (tipoInsumo?.label ?? 'Máquina/Implemento')}
                 label={"Tipo de " + (tipoInsumo?.label ?? 'Máquina/Implemento')}
             />
 
             <Select
                 dados={tiposCombustiveis}
-                onChange={(value) => setTipoCombustivel(value)} 
+                onChange={(value) => setTipoCombustivel(value)}
                 value={tipoCombustivel}
-                placeholder="Selecione o tipo de combustível" 
+                placeholder="Selecione o tipo de combustível"
                 label="Tipo de combustível"
             />
 
             <Select
                 dados={tiposCalculos}
-                onChange={(value) => setTipoCalculo(value)} 
+                onChange={(value) => setTipoCalculo(value)}
                 value={tipoCalculo}
-                placeholder="Selecione o tipo de cálculo" 
+                placeholder="Selecione o tipo de cálculo"
                 label="Tipo de cálculo da despesa"
             />
 
@@ -282,7 +280,7 @@ export default function CriarMaquina() {
                 keyboard="numeric"
             />
 
-            <Input 
+            <Input
                 label="Consumo médio"
                 placeholder="0,000 km/L"
                 value={consumoMedio}

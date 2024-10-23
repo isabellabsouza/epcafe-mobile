@@ -53,7 +53,15 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
             <InfoLinha label="Tipo de cálculo" valor={maquina.tipoCalculo} />
             <InfoLinha label="Tipo de combustível" valor={maquina.tipoCombustivel} />
             <InfoLinha label="Tipo de insumo" valor={maquina.tipoInsumo} />
-            <InfoLinha label="Valor" valor={"R$ " + maquina.valor} />
+            <InfoLinha 
+                label="Valor" 
+                valor={new Intl.NumberFormat('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                }).format(maquina.valor)
+                .replace('R$', 'R$ ')
+                } 
+            />
             <InfoLinha label="Vida Útil" valor={maquina.vidaUtil + " anos"} />
 
             <Modal

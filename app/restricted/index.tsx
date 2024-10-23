@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import Card from '@/components/CardPadrao';
 import Subtitulo from '@/components/Subtitulo';
 import Titulo from '@/components/Titulo';
@@ -7,6 +7,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { unidadesCollection, usuariosCollection } from '@/db';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import BotaoMenu from '@/components/navigation/BotaoMenu';
 
 const cards = [
     {
@@ -53,7 +56,10 @@ export default function HomeScreen() {
                 <>
                     <View style={styles.syncButton}>
                         <Text style={styles.unidade}>{nomeUnidade}</Text>
-                        <SyncButton />
+                        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
+                            <SyncButton />
+                            <BotaoMenu />
+                        </View>
                     </View>
                     <Titulo titulo={`Bem-vindo ${usuario.nome}!`} />
                     <Subtitulo subtitulo="Gerenciar propriedade" />
@@ -79,6 +85,8 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     appContainer: {
         padding: 17,
+        flex: 1,
+        marginBottom: 0,
     },
     syncButton: {
         display: 'flex',
@@ -96,4 +104,17 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'space-between',
     },
+    botoesContainer: {
+        
+        gap: 15
+    },
+    botoesAcoes: {
+        flexDirection: 'row', 
+        flexWrap: 'wrap',
+        gap: 10, 
+        alignItems: 'center', 
+        backgroundColor: '#D9d9d9',
+        padding: 10,
+        borderRadius: 10
+    }
 })

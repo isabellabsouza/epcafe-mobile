@@ -2,7 +2,6 @@ import Botao from "@/components/Botao";
 import CampoPesquisa from "@/components/CampoPesquisa";
 import ListaCards from "@/components/despesaMaquina/ListaCards";
 import Titulo from "@/components/Titulo";
-import { despesasMaquinasCollection } from "@/db";
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, Stack } from "expo-router";
@@ -33,18 +32,6 @@ export default function NovaDespesaMaquina() {
         };
         buscarNomeUnidade();
     }, []);
-
-    useEffect(() => {
-        const fetchTenant = async () => {
-            try {
-                const despesas = await despesasMaquinasCollection.query().fetch();
-                //console.log(despesas);
-            } catch (error) {
-                console.error("Erro ao buscar o tenant:", error);
-            }
-        };
-        fetchTenant();
-    }, [])
 
     return (
         <SafeAreaView style={{ flex: 1, paddingTop: -23 }}>

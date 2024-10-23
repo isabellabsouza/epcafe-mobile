@@ -13,6 +13,7 @@ import Item from "@/db/model/Item";
 import NotaFiscal from "@/db/model/NotaFiscal";
 import Tenant from "@/db/model/Tenant";
 import TipoFertilizante from "@/utils/enums/TipoFertilizante";
+import { buscarTenantId, buscarUnidadeId } from "@/utils/functions/Storage";
 import { Q } from "@nozbe/watermelondb";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams } from 'expo-router';
@@ -43,14 +44,12 @@ export default function CriarDespesaFertilizante() {
     const [tipoInsumo, setTipoInsumo] = useState<any>({ label: '', value: '' });
     const [notaFiscal, setNotaFiscal] = useState<NotaFiscal>();
     const [unidade, setUnidade] = useState<any>();
-    const [tenant, setTenant] = useState<Tenant>();
+    const [tenant, setTenant] = useState<string | null>('');
     const [fertilizanteSelecionado, setFertilizanteSelecionado] = useState<string | null>(null);
     const [valorItem, setValorItem] = useState(0);
     const [quantidadeItem, setQuantidadeItem] = useState(0);
-    const [qtdDistribuida, setQtdDistribuida] = useState('');
 
     // definição das listas de opções para os selects
-    const [tipo, setTipo] = useState<any>({ label: '', value: '' });
     const [notasFiscais, setNotasFiscais] = useState<any[]>([]);
     const [fertilizantes, setFertilizantes] = useState<any[]>([]);
 
@@ -63,6 +62,19 @@ export default function CriarDespesaFertilizante() {
             value: key,
         }
     })
+
+    useEffect(() => {
+        const buscarTenantUnidade = async () => {
+            const tenantId = await buscarTenantId();
+            setTenant(tenantId);
+            console.log('tenantId', tenant);
+
+            const unidadeId = await buscarUnidadeId();
+            setUnidade(unidadeId);
+            console.log('unidadeId', unidade);
+        };
+        buscarTenantUnidade();
+    }, []);
 
 
     //edição de máquinas e implementos
@@ -124,16 +136,6 @@ export default function CriarDespesaFertilizante() {
         fetchFertilizantes();
     }, [tipoInsumo]);
 
-    const buscarNotaEspecifica = async (notaFiscalId: string) => {
-        try {
-            await database.get<NotaFiscal>('nota_fiscal').find(notaFiscalId);
-            return notaFiscal;
-
-        } catch (error) {
-            console.error("Nenhuma nota fistal encontrada:", error);
-        }
-    }
-
     const buscarNotasFiscais = async (fertilizanteId: string) => {
         try {
             console.log("Fertilizante Selecionado: ", fertilizanteId);
@@ -172,20 +174,6 @@ export default function CriarDespesaFertilizante() {
         buscarNotasFiscais(value); // Buscar notas fiscais com base no fertilizante selecionado
     };
 
-    // useEffect(() => {
-    //     const fetchFertilizante = async () => {
-    //         try {
-    //             const fetchedTenant = await getFertilizante;
-                
-    //             console.log("Fertilizante buscado:", fetchedTenant);
-    //         } catch (error) {
-    //             console.error("Erro ao buscar o fertilizante x:", error);
-    //         }
-    //     };
-    //     fetchFertilizante();
-    // }, []);
-
-    //salvar despesa fertilizante
     const salvarDespesaFertilizante = async () => {
         if (despesaFertilizante) {
 
@@ -230,7 +218,9 @@ export default function CriarDespesaFertilizante() {
                     novaDespesa.medida = medida;
                     novaDespesa.valorTotal = 0;
                     //@ts-ignore
-                    //novaDespesa.tenant.set(tenant);
+                    novaDespesa.tenant.id = tenant;
+                    //@ts-ignore
+                    novaDespesa.unidade.id = unidade;
                     console.log('novaDespesa', novaDespesa);
                 });
                 console.log('despesa id dessa porra', despesa.id);

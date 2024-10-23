@@ -1,8 +1,7 @@
 import Maquina from "@/db/model/Maquina";
-import { Link } from "expo-router";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { withObservables } from '@nozbe/watermelondb/react';
-
+import { Link } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 type CardMaquinaProps = {
     maquina: Maquina;
@@ -13,9 +12,8 @@ function CardMaquina({maquina, rota}: CardMaquinaProps) {
         <Link href={{ pathname: rota as any, params: {id: maquina.id}}} asChild>
             <TouchableOpacity style={styles.cardContainer}>
                 <Text style={styles.titulo}>{maquina.nome}</Text>
-                <Text style={styles.info}>{maquina.vidaUtil} anos</Text>
-                <Text style={styles.info}>{maquina.potencia} CV</Text>
                 <Text style={styles.info}>{maquina.tipoCombustivel}</Text>
+                <Text style={styles.info}>{maquina.vidaUtil} anos</Text>
             </TouchableOpacity>
         </Link>
     );
@@ -42,7 +40,7 @@ const styles = StyleSheet.create({
     },
     titulo: {
         fontSize: 19,
-        
+        fontWeight: 'bold'
     },
     info: {
         fontSize: 15

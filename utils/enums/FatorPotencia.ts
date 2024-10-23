@@ -64,9 +64,5 @@ const FatorPotencia = {
         description: 'Indefinido',
         enum: 'INDEFINIDO',
     },
-
-    getNome() {
-        
-    }
 }
 export default FatorPotencia;

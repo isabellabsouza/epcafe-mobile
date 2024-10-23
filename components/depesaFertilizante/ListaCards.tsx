@@ -1,23 +1,24 @@
 import { despesasFertilizantesCollection } from "@/db";
-import DespesaMaquina from "@/db/model/DespesaMaquina";
 import { withObservables } from '@nozbe/watermelondb/react';
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import Card from "./Card";
 import DespesaFertilizante from "@/db/model/DespesaFertilizante";
 import { Q } from "@nozbe/watermelondb";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function ListaCards({ despesasFertilizantes }: { despesasFertilizantes: DespesaFertilizante[] }) {
 
-    
+
     return (
 
         <View style={styles.cardsContainer}>
             {
-                despesasFertilizantes?.map((item) => 
-                    <Card 
-                        key={item.id.toString()} 
-                        despesaFertilizante={item} 
-                        rota="/restricted/despesaFertilizante/detalhar" 
+                despesasFertilizantes?.map((item) =>
+                    <Card
+                        key={item.id.toString()}
+                        despesaFertilizante={item}
+                        rota="/restricted/despesaFertilizante/detalhar"
                     />
                 )
             }
@@ -32,27 +33,42 @@ interface ListaCardsProps {
     filtroPesquisa: string;
     filtroOrdenacao: string;
 }
+function ListaCardsEnhanced({ filtroPesquisa, filtroOrdenacao }: ListaCardsProps) {
+    const [unidadeId, setUnidadeId] = useState<string | null>(null);
 
-const enhance = withObservables(
-    ['filtroPesquisa', 'filtroOrdenacao'], 
-    ({filtroPesquisa, filtroOrdenacao}: ListaCardsProps) => ({
-        despesasFertilizantes: despesasFertilizantesCollection.query(
-            ...(filtroPesquisa
-                ? [Q.on(
-                    'fertilizante', 
-                    Q.where('nome', Q.like(`%${filtroPesquisa}%`))
+    useEffect(() => {
+        async function fetchUnidadeId() {
+            const storedUnidadeId = await AsyncStorage.getItem('unidadeId');
+            setUnidadeId(storedUnidadeId);
+        }
+        fetchUnidadeId();
+    }, []);
+
+    if (!unidadeId) {
+        return <Text>Carregando dados...</Text>;
+    }
+
+    const EnhancedListaCards = withObservables(
+        ['filtroPesquisa', 'filtroOrdenacao'],
+        ({ filtroPesquisa, filtroOrdenacao }: ListaCardsProps) => ({
+            despesasFertilizantes: despesasFertilizantesCollection.query(
+                Q.where('unidade_id', unidadeId),
+                ...(filtroPesquisa
+                    ? [Q.on(
+                        'fertilizante',
+                        Q.where('nome', Q.like(`%${filtroPesquisa}%`))
                     )]
-                : []),
-            Q.sortBy(filtroOrdenacao || 'data', 'asc')
-        ),
-    })
-);
+                    : []),
+                Q.sortBy(filtroOrdenacao || 'data', 'asc')
+            ),
+        })
+    )(ListaCards);
 
-// const enhance = withObservables([], () => ({
-//     despesasFertilizantes: despesasFertilizantesCollection.query(),
-// }));
+    return <EnhancedListaCards filtroPesquisa={filtroPesquisa} filtroOrdenacao={filtroOrdenacao} />;
 
-export default enhance(ListaCards);
+}
+
+export default ListaCardsEnhanced;
 
 const styles = StyleSheet.create({
     emptyMessage: {

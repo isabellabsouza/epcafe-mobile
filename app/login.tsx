@@ -47,11 +47,12 @@ export default function Auth() {
 
     async function signInWithEmail() {
         setLoading(true);
-
+        console.log("Fazendo login...")
         const { data: { session }, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
+        console.log('finished login req')
 
         setLoading(false);
 
@@ -61,6 +62,7 @@ export default function Auth() {
         }
 
         if (session?.user) {
+            console.log('session/user is valid:',session)
             setSessao(session);
             await fetchUsuario(session.user.id); // Continua apenas se a sessão for válida
             router.replace('/selecionarUnidade');
@@ -96,6 +98,7 @@ export default function Auth() {
                 placeholder='Digite seu email'
                 value={email}
                 onChangeText={setEmail}
+                keyboard='email-address'
             />
 
             <Input
@@ -103,6 +106,7 @@ export default function Auth() {
                 placeholder='Digite sua senha'
                 value={password}
                 onChangeText={setPassword}
+                secureTextEntry={true}
             />
 
             <Botao nome="Entrar" disabled={loading} onPress={() => signInWithEmail()} />
