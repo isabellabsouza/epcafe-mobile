@@ -1,17 +1,26 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Href, router } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface InfoLinhaProps {
     label: string,
-    valor: any
+    valor: any,
+    rota?: string,
 }
-export default function InfoLinha({ label, valor }: InfoLinhaProps) {
+export default function InfoLinha({ label, valor, rota }: InfoLinhaProps) {
 
     return (
-        <View style={styles.infoCard}>
-            <Text style={styles.label}>{label}</Text>
-            <Text style={styles.valor}>{valor}</Text>
-        </View>
-    )
+        rota ? (
+            <TouchableOpacity style={styles.infoCard} onPress={() => router.push(rota as unknown as Href<string | object>)}>
+                <Text style={styles.label}>{label}</Text>
+                <Text style={styles.valor}>{valor}</Text>
+            </TouchableOpacity>
+        ) : (
+            <View style={styles.infoCard}>
+                <Text style={styles.label}>{label}</Text>
+                <Text style={styles.valor}>{valor}</Text>
+            </View>
+        )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -21,22 +30,22 @@ const styles = StyleSheet.create({
         padding: 17,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center', 
+        alignItems: 'center',
         marginBottom: 15,
         marginTop: 15,
     },
     label: {
         fontSize: 18,
-        flex: 1,  
+        flex: 1,
     },
     valor: {
         fontSize: 18,
         fontWeight: 'bold',
-        flex: 1,  
+        flex: 1,
         textAlign: 'right',
     },
     toggleButton: {
-        marginLeft: 10, 
+        marginLeft: 10,
     },
     expandedView: {
         marginTop: 10,

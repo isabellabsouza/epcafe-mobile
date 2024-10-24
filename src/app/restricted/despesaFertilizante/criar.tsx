@@ -5,6 +5,7 @@ import InputData from "@/src/components/Formulario/InputData";
 import Select from "@/src/components/Formulario/Select";
 import Titulo from "@/src/components/Titulo";
 import Toast from "@/src/components/toast/Toast";
+import DespesaFertilizanteController from "@/src/controller/DespesaFertilizanteController";
 import database, { despesasFerTalhoesCollection, despesasFertilizantesCollection, fertilizantesCollection, getFertilizante, getTenant, itensCollection, notasCollection, talhoesCollection } from "@/src/db";
 import DespesaFerTalhao from "@/src/db/model/DespesaFerTalhao";
 import DespesaFertilizante from "@/src/db/model/DespesaFertilizante";
@@ -24,7 +25,7 @@ export default function CriarDespesaFertilizante() {
 
     const { id } = useLocalSearchParams();
 
-    const [Id, setId] = useState(id);
+    const [Id, setId] = useState<string | string[]>(id ?? '');
 
     const [despesaFertilizante, setDespesaFertilizante] = useState<DespesaFertilizante>();
     const titulo = Id ?
@@ -40,7 +41,7 @@ export default function CriarDespesaFertilizante() {
     const [data, setData] = useState('');
     const [medida, setMedida] = useState('');
     const [valorTotal, setValorTotal] = useState('');
-    const [fertilizante, setFertilizante] = useState<Fertilizante | null>();
+    const [fertilizante, setFertilizante] = useState('');
     const [tipoInsumo, setTipoInsumo] = useState<any>({ label: '', value: '' });
     const [notaFiscal, setNotaFiscal] = useState<NotaFiscal>();
     const [unidade, setUnidade] = useState<any>();
@@ -48,6 +49,7 @@ export default function CriarDespesaFertilizante() {
     const [fertilizanteSelecionado, setFertilizanteSelecionado] = useState<string | null>(null);
     const [valorItem, setValorItem] = useState(0);
     const [quantidadeItem, setQuantidadeItem] = useState(0);
+    const [despesasFerTalhao, setDespesasFerTalhao] = useState<DespesaFerTalhao[]>();
 
     // definição das listas de opções para os selects
     const [notasFiscais, setNotasFiscais] = useState<any[]>([]);
@@ -64,76 +66,40 @@ export default function CriarDespesaFertilizante() {
     })
 
     useEffect(() => {
-        const buscarTenantUnidade = async () => {
+        const buscarDados = async () => {
             const tenantId = await buscarTenantId();
             setTenant(tenantId);
-            console.log('tenantId', tenant);
 
             const unidadeId = await buscarUnidadeId();
             setUnidade(unidadeId);
-            console.log('unidadeId', unidade);
-        };
-        buscarTenantUnidade();
-    }, []);
 
+            if (id) {
 
-    //edição de máquinas e implementos
-    useEffect(() => {
-        if (Id) {
-            //se for passado um id, buscar a máquina para edição
-            const fetchDespesaFertilizante = async () => {
-                try {
-                    const despesaFertilizanteEncontrada = await despesasFertilizantesCollection.find(String(id));
+                const despesaFertilizanteEncontrada = await DespesaFertilizanteController.buscarDespesaFertilizante(String(id));
+
+                if (despesaFertilizanteEncontrada) {
                     setDespesaFertilizante(despesaFertilizanteEncontrada);
 
                     setData(despesaFertilizanteEncontrada.data.toDateString());
                     setMedida(despesaFertilizanteEncontrada.medida);
-                    setValorTotal(despesaFertilizanteEncontrada.valorTotal.toString());
-                    //@ts-ignore
-                    setFertilizante(despesaFertilizanteEncontrada.fertilizante.id.toString());
-                    //@ts-ignore
-                    setNotaFiscal(despesaFertilizanteEncontrada.notaFiscal.id);
-                    //@ts-ignore
-                    setUnidade(despesaFertilizanteEncontrada.unidade.id);
-                    //@ts-ignore
-                    setTenant(despesaFertilizanteEncontrada.tenant.id);
-
-                } catch (error) {
-                    console.error("Erro ao buscar a despesa:", error);
+                    setFertilizante(despesaFertilizanteEncontrada.fertilizante.id);
+                    setNotaFiscal(despesaFertilizanteEncontrada.notaFiscal);
                 }
-            };
+            }
 
-            fetchDespesaFertilizante();
-        }
-    }, [Id]);
+        };
+        buscarDados();
+    }, []);
 
     //buscar fertilizantes
     useEffect(() => {
 
-        const fetchFertilizantes = async () => {
-            try {
-                const fertilizantesEncontrados = await fertilizantesCollection
-                    .query(
-                        //@ts-ignore
-                        Q.where('tipo', tipoInsumo.value),
-                        Q.sortBy('id')
-                    )
-                    .fetch();
-
-                const fertilizantes = fertilizantesEncontrados.map((fertilizante) => {
-                    return {
-                        label: fertilizante.nome,
-                        value: fertilizante.id
-                    }
-                })
-                setFertilizantes(fertilizantes);
-                // console.log("Fertilizantes:", fertilizantesEncontradas);
-            } catch (error) {
-                console.error("Erro ao buscar os fertilizantes:", error);
-            }
+        const buscarFertilizantesPorTipo = async () => {
+            const fertilizantesEncontrados = await DespesaFertilizanteController.montarListaFertilizantesPorTipo(tipoInsumo.value);
+            setFertilizantes(fertilizantesEncontrados);
         };
 
-        fetchFertilizantes();
+        buscarFertilizantesPorTipo();
     }, [tipoInsumo]);
 
     const buscarNotasFiscais = async (fertilizanteId: string) => {
@@ -146,9 +112,9 @@ export default function CriarDespesaFertilizante() {
                         Q.where('fertilizante_id', fertilizanteId.value)
                     )
                     .fetch();
-            
+
             console.log('itens:', itensPorFertilizante);
-            
+
             const notas = await Promise.all(itensPorFertilizante.map(async (item) => {
                 console.log('Nota fiscal do item:', item.notaFiscal.id);
                 const notaFiscal = await notasCollection.find(item.notaFiscal.id);
@@ -163,7 +129,7 @@ export default function CriarDespesaFertilizante() {
             }));
 
             setNotasFiscais(notas);
-            
+
         } catch (error) {
             console.log('Erro ao buscar notas fiscais com itens:', error);
         }
@@ -174,76 +140,102 @@ export default function CriarDespesaFertilizante() {
         buscarNotasFiscais(value); // Buscar notas fiscais com base no fertilizante selecionado
     };
 
+    // const salvarDespesaFertilizante = async () => {
+    //     if (despesaFertilizante) {
+
+    //         // Se a despesa já existe, atualizar
+    //         await database.write(async () => {
+    //             await despesaFertilizante.update((d) => {
+    //                 d.data = new Date(data);
+    //                 d.medida = medida;
+    //                 d.valorTotal = parseFloat(valorTotal);
+
+    //                 //@ts-ignore
+    //                 d.fertilizante.id = fertilizante;
+    //                 console.log('despesa editada', d)
+
+    //             });
+    //         }).then(() => {
+
+    //             setGravidade('sucesso');
+    //             setMensagem('Despesa atualizada com sucesso!');
+    //             setToast(true);
+
+    //             console.log("Despesa atualizada com sucesso!");
+    //         }).catch((error) => {
+    //             setGravidade('erro');
+    //             setMensagem('Erro ao atualizar a despesa');
+    //             setToast(true);
+    //             console.error("Erro ao atualizar a despesa:", error);
+    //         });
+
+    //     } else {
+    //         // Se a despesa não existe, criar
+    //         console.log("Medida:", medida);
+    //         await database.write(async () => {
+    //             const despesa = await despesasFertilizantesCollection.create((novaDespesa) => {
+
+    //                 novaDespesa.data = new Date(data);
+    //                 //@ts-ignore
+    //                 novaDespesa.fertilizante.id = fertilizanteSelecionado.value;
+    //                 //@ts-ignore
+    //                 novaDespesa.notaFiscal.id = notaFiscal.value;
+    //                 //@ts-ignore
+    //                 novaDespesa.medida = medida;
+    //                 novaDespesa.valorTotal = 0;
+    //                 //@ts-ignore
+    //                 novaDespesa.tenant.id = tenant;
+    //                 //@ts-ignore
+    //                 novaDespesa.unidade.id = unidade;
+    //                 console.log('novaDespesa', novaDespesa);
+    //             });
+    //             console.log('despesa id dessa porra', despesa.id);
+    //             setId(despesa.id);
+
+    //         }).then(() => {
+
+    //             setGravidade('sucesso');
+    //             setMensagem('Despesa criada com sucesso!');
+    //             setToast(true);
+
+    //             console.log("Despesa criada com sucesso!");
+
+    //         }).catch((error) => {
+    //             setGravidade('erro');
+    //             setMensagem('Erro ao criar despesa');
+    //             setToast(true);
+    //             console.error("Erro ao criar despesa:", error);
+    //         });
+
+    //     }
+    // }
+
     const salvarDespesaFertilizante = async () => {
-        if (despesaFertilizante) {
-
-            // Se a despesa já existe, atualizar
-            await database.write(async () => {
-                await despesaFertilizante.update((d) => {
-                    d.data = new Date(data);
-                    d.medida = medida;
-                    d.valorTotal = parseFloat(valorTotal);
-
-                    //@ts-ignore
-                    d.fertilizante.id = fertilizante;
-                    console.log('despesa editada', d)
-
-                });
-            }).then(() => {
-
-                setGravidade('sucesso');
-                setMensagem('Despesa atualizada com sucesso!');
-                setToast(true);
-
-                console.log("Despesa atualizada com sucesso!");
-            }).catch((error) => {
-                setGravidade('erro');
-                setMensagem('Erro ao atualizar a despesa');
-                setToast(true);
-                console.error("Erro ao atualizar a despesa:", error);
-            });
-
-        } else {
-            // Se a despesa não existe, criar
-            console.log("Medida:", medida);
-            await database.write(async () => {
-                const despesa = await despesasFertilizantesCollection.create((novaDespesa) => {
-                    
-                    novaDespesa.data = new Date(data);
-                    //@ts-ignore
-                    novaDespesa.fertilizante.id = fertilizanteSelecionado.value;
-                    //@ts-ignore
-                    novaDespesa.notaFiscal.id = notaFiscal.value;
-                    //@ts-ignore
-                    novaDespesa.medida = medida;
-                    novaDespesa.valorTotal = 0;
-                    //@ts-ignore
-                    novaDespesa.tenant.id = tenant;
-                    //@ts-ignore
-                    novaDespesa.unidade.id = unidade;
-                    console.log('novaDespesa', novaDespesa);
-                });
-                console.log('despesa id dessa porra', despesa.id);
-                setId(despesa.id);
-
-            }).then(() => {
-
-                setGravidade('sucesso');
-                setMensagem('Despesa criada com sucesso!');
-                setToast(true);
-
-                console.log("Despesa criada com sucesso!");
-
-            }).catch((error) => {
-                setGravidade('erro');
-                setMensagem('Erro ao criar despesa');
-                setToast(true);
-                console.error("Erro ao criar despesa:", error);
-            });
-
+        const despesaFertilizanteData = {
+            data: new Date(data),
+            medida: medida,
+            //@ts-ignore
+            fertilizante: fertilizanteSelecionado.value,
+            //@ts-ignore
+            notaFiscal: notaFiscal.value,
+            tenant,
+            unidade,
         }
+
+        //@ts-ignore
+        const despesaID = await DespesaFertilizanteController.salvarDespesaFertilizante(despesaFertilizanteData, despesaFertilizante);
+        setId(despesaID ?? '');
+        if (Id != null) {
+
+            setGravidade('sucesso');
+            setMensagem(despesaFertilizante ? 'Despesa atualizada com sucesso!' : 'Despesa criada com sucesso!');
+        } else {
+            setGravidade('erro');
+            setMensagem(despesaFertilizante ? 'Erro ao atualizar a despesa!' : 'Erro ao atualizar a despesa!');
+        }
+        setToast(true);
     }
-    const [despesasFerTalhao, setDespesasFerTalhao] = useState<DespesaFerTalhao[]>();
+
 
     useEffect(() => {
         if (!Id || page <= 0) return;
@@ -301,14 +293,14 @@ export default function CriarDespesaFertilizante() {
     const [unidadeId, setUnidadeId] = useState('');
 
     useEffect(() => {
-        if(page === 1)
+        if (page === 1)
             buscarUnidade();
     }, [page]);
 
     const buscarUnidade = async () => {
         let unidade = await AsyncStorage.getItem('unidade');
         console.log('UNIDADE', unidade);
-        if(unidade)
+        if (unidade)
             setUnidadeId(unidade);
     }
 
@@ -316,19 +308,18 @@ export default function CriarDespesaFertilizante() {
     const [salvar, setSalvar] = useState(false);
     const distribuirFerTalhao = () => {
 
-        console.log('DESPESASSS', despesasFerTalhao);
-        if(!talhoes || talhoes.length === 0)
+        if (!talhoes || talhoes.length === 0)
             talhoesCollection
                 .query(
                     Q.where('unidade_id', unidadeId)
                 )
                 .fetch()
                 .then((talhoes) => {
-                    console.log('TALHOES', talhoes);
+                    console.log('TALHOES', talhoes.length);
                     setTalhoes(talhoes);
                 })
 
-            console.log('Despesa Fertilizante::', Id)
+        console.log('Despesa Fertilizante::', Id)
 
         return (
             <ScrollView contentContainerStyle={styles.scrollContent} >
@@ -336,7 +327,7 @@ export default function CriarDespesaFertilizante() {
 
                 <Text >Quantidade para distribuir: {quantidadeItem} {medida}</Text>
                 {talhoes.map((talhao) => {
-                    
+
                     return (
                         <InputFerTalhao
                             key={talhao.id}
@@ -351,7 +342,12 @@ export default function CriarDespesaFertilizante() {
                     )
                 })}
 
-                <Botao nome="Salvar" onPress={() => setSalvar(true)} disabled={false} />
+                <Botao nome="Salvar" onPress={() => {
+                    setSalvar(true); 
+                    setGravidade('sucesso');
+                    setMensagem('Despesa distribuída com sucesso!');
+                    setToast(true);
+                }} disabled={false} />
             </ScrollView>
         )
 
@@ -375,7 +371,7 @@ export default function CriarDespesaFertilizante() {
 
                 <Select
                     dados={tipos}
-                    onChange={(value) => {setTipoInsumo(value)}}
+                    onChange={(value) => { setTipoInsumo(value) }}
                     value={tipoInsumo}
                     placeholder="Selecione o tipo de insumo"
                     label="Tipo de insumo"
@@ -388,15 +384,15 @@ export default function CriarDespesaFertilizante() {
                     placeholder={"Selecione o tipo de " + (tipoInsumo?.label ?? 'Fertilizante/Defensivo')}
                     label={"Selecione o " + (tipoInsumo?.label ?? 'Fertilizante/Defensivo')}
                 />
-                
+
                 <Select
                     dados={notasFiscais}
                     onChange={(value) => {
                         setNotaFiscal(value),
-                        setMedida(value.medida),
-                        setValorItem(value.valor),
-                        console.log('VALOR ITEM', value.valor),
-                        setQuantidadeItem(value.quantidade)
+                            setMedida(value.medida),
+                            setValorItem(value.valor),
+                            console.log('VALOR ITEM', value.valor),
+                            setQuantidadeItem(value.quantidade)
                     }}
                     value={notaFiscal?.id ?? ''}
                     placeholder="Selecione a nota fiscal"
@@ -408,7 +404,7 @@ export default function CriarDespesaFertilizante() {
                     <Botao nome="Salvar" onPress={salvarDespesaFertilizante} disabled={false} />
                     {
                         Id &&
-                        <Botao nome="Teste" onPress={() => setPage(1)} disabled={false} />
+                        <Botao nome="Distribuir" onPress={() => setPage(1)} disabled={false} />
                     }
                 </View>
                 {toast &&

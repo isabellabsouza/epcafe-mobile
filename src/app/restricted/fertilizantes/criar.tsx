@@ -3,19 +3,15 @@ import Input from "@/src/components/Formulario/Input";
 import Select from "@/src/components/Formulario/Select";
 import Titulo from "@/src/components/Titulo";
 import Toast from "@/src/components/toast/Toast";
-import database, { fertilizantesCollection } from "@/src/db";
+import FertilizanteController from "@/src/controller/FertilizanteController";
 import Fertilizante from "@/src/db/model/Fertilizante";
 import TipoFertilizante from "@/src/utils/enums/TipoFertilizante";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
 export default function CriarFertilizante() {
 
-    const { id } = useLocalSearchParams();
-
-    const [fertilizante, setFertilizante] = useState<Fertilizante | null>(null);
-    const titulo = id ? "Editar Fertilizante ou Defensivo" : "Adicionar Fertilizante ou Defensivo";
+    const titulo = "Adicionar Fertilizante ou Defensivo";
 
     // variáveis de estado para exibir toast
     const [toast, setToast] = useState(false);
@@ -34,24 +30,26 @@ export default function CriarFertilizante() {
         }
     })
 
-    const salvarFertilizante = async () => {
-        await database.write(async () => {
-            await fertilizantesCollection.create((novo) => {
-                novo.nome = nome;
-                novo.tipo = tipo.value;
-            }).then(() => {
-                setGravidade('sucesso');
-                setMensagem('Máquina criada com sucesso!');
-                setToast(true);
+    const salvar = async () => {
+        const fertilizanteData: Partial<Fertilizante> = {
+            nome: nome,
+            tipo: tipo.value,
+        }
 
-                console.log("Fertilizante criado com sucesso.");
-            }).catch((error) => {
-                setGravidade('erro');
-                setMensagem('Erro ao criar o fertilizante.');
-                setToast(true);
-                console.error("Erro ao criar o fertilizante:", error);
-            })
-        })
+        const sucesso = await FertilizanteController.salvarFertilizante(fertilizanteData);
+
+        if (sucesso) {
+            setNome('');
+            setTipo({ label: '', value: '' });
+            
+            setGravidade('sucesso');
+            setMensagem('Fertilizante salvo com sucesso!');
+        } else {
+            setGravidade('erro');
+            setMensagem('Erro ao salvar o fertilizante!');
+        }
+
+        setToast(true);
     }
 
     return (
@@ -73,7 +71,7 @@ export default function CriarFertilizante() {
                 label="Tipo de insumo"
             />
 
-            <Botao nome="Salvar" onPress={salvarFertilizante} disabled={false} />
+            <Botao nome="Salvar" onPress={salvar} disabled={false} />
 
             {toast &&
                 <Toast setToast={setToast}

@@ -4,7 +4,7 @@ import InputData from "@/src/components/Formulario/InputData";
 import Select from "@/src/components/Formulario/Select";
 import Titulo from "@/src/components/Titulo";
 import Toast from "@/src/components/toast/Toast";
-import database, { maquinasCollection } from "@/src/db";
+import MaquinaController from "@/src/controller/MaquinaController";
 import Maquina from "@/src/db/model/Maquina";
 import TipoCalculo from "@/src/utils/enums/TipoCalculo";
 import TipoCombustivel from "@/src/utils/enums/TipoCombustivel";
@@ -19,7 +19,7 @@ export default function CriarMaquina() {
 
     const { id } = useLocalSearchParams();
 
-    const [maquina, setMaquina] = useState<Maquina>();
+    const [maquina, setMaquina] = useState<Maquina | null>(null);
     const titulo = id ? "Editar Máquina ou Implemento" : "Adicionar Máquina ou Implemento";
 
     // variáveis de estado para exibir toast
@@ -99,13 +99,18 @@ export default function CriarMaquina() {
 
     //edição de máquinas e implementos
     useEffect(() => {
-        if (id) {
-            //se for passado um id, buscar a máquina para edição
-            const buscarMaquina = async () => {
-                try {
-                    const maquinaEncontrada = await maquinasCollection.find(String(id));
-                    setMaquina(maquinaEncontrada);
+        const buscarDados = async () => {
+            const tenantId = await buscarTenantId();
+            console.log('tenantId', tenantId)
+            setTenant(tenantId);
 
+            if (id) {
+
+                const maquinaEncontrada = await MaquinaController.buscarMaquina(String(id));
+
+                if (maquinaEncontrada) {
+
+                    setMaquina(maquinaEncontrada);
                     setTipoInsumo({
                         label: TipoInsumoMecanico[maquinaEncontrada.tipoInsumo as keyof typeof TipoInsumoMecanico],
                         value: maquinaEncontrada.tipoInsumo,
@@ -129,112 +134,53 @@ export default function CriarMaquina() {
                     setValor(maquinaEncontrada.valor.toString());
                     setDataCompra(maquinaEncontrada.dataCompra.toISOString());
                     setVidaUtil(maquinaEncontrada.vidaUtil.toString());
-
-
-                } catch (error) {
-                    console.error("Erro ao buscar a máquina:", error);
                 }
             };
 
-            buscarMaquina();
         }
+        buscarDados();
     }, [id]);
 
-    useEffect(() => {
-        const buscarTenant = async () => {
-            const tenantId = await buscarTenantId();
-            setTenant(tenantId);
+    const salvar = async () => {
+        const maquinaData = {
+            nome,
+            consumoMedio: parseFloat(consumoMedio),
+            dataCompra: new Date(dataCompra),
+            modelo,
+            potencia: parseFloat(potencia),
+            tipo: tipo.value,
+            tipoCalculo: tipoCalculo.value,
+            tipoCombustivel: tipoCombustivel.value,
+            tipoInsumo: tipoInsumo.value,
+            valor: parseFloat(valor),
+            vidaUtil: parseInt(vidaUtil),
+            tenant,
         };
-        buscarTenant();
-    }, []);
 
+        //@ts-ignore
+        const sucesso = await MaquinaController.salvarMaquina(maquinaData, maquina);
+        if (sucesso) {
 
-    //salvar máquina ou implemento
-    const salvarMaquina = async () => {
-        if (maquina) {
-            // Se a máquina já existe, atualizar
-            await database.write(async () => {
-                await maquina.update((m) => {
-                    m.nome = nome;
-                    m.consumoMedio = parseFloat(consumoMedio);
-                    m.dataCompra = new Date(dataCompra);
-                    m.modelo = modelo;
-                    m.potencia = parseFloat(potencia);
-                    m.tipo = tipo.value;
-                    m.tipoCalculo = tipoCalculo.value;
-                    m.tipoCombustivel = tipoCombustivel.value;
-                    m.tipoInsumo = tipoInsumo.value;
-                    m.valor = parseFloat(valor);
-                    m.vidaUtil = parseInt(vidaUtil);
-                    //@ts-ignore
-                    m.tenant.set(tenant);
-                    console.log('maquina editada', m)
+            setNome('');
+            setConsumoMedio('');
+            setDataCompra('');
+            setModelo('');
+            setPotencia('');
+            setTipo({ label: '', value: '' });
+            setTipoCalculo({ label: '', value: '' });
+            setTipoCombustivel({ label: '', value: '' });
+            setTipoInsumo({ label: '', value: '' });
+            setValor('');
+            setVidaUtil('');
 
-                });
-            }).then(() => {
-
-                setGravidade('sucesso');
-                setMensagem('Máquina atualizada com sucesso!');
-                setToast(true);
-
-                console.log("Máquina atualizada com sucesso!");
-            }).catch((error) => {
-                setGravidade('erro');
-                setMensagem('Erro ao atualizar a máquina');
-                setToast(true);
-                console.error("Erro ao atualizar a máquina:", error);
-            });
-
+            setGravidade('sucesso');
+            setMensagem(maquina ? 'Máquina atualizada com sucesso!' : 'Máquina criada com sucesso!');
         } else {
-            // Se a máquina não existe, criar
-            await database.write(async () => {
-                await maquinasCollection.create((novaMaquina) => {
-
-                    novaMaquina.nome = nome;
-                    novaMaquina.consumoMedio = parseFloat(consumoMedio);
-                    novaMaquina.dataCompra = new Date(dataCompra);
-                    novaMaquina.modelo = modelo;
-                    novaMaquina.potencia = parseFloat(potencia);
-                    novaMaquina.tipo = tipo.value;
-                    novaMaquina.tipoCalculo = tipoCalculo.value;
-                    novaMaquina.tipoCombustivel = tipoCombustivel.value;
-                    novaMaquina.tipoInsumo = tipoInsumo.value;
-                    novaMaquina.valor = parseFloat(valor);
-                    novaMaquina.vidaUtil = parseInt(vidaUtil);
-                    //@ts-ignore
-                    novaMaquina.tenant.id = tenant;
-                    console.log('novaMaquina', novaMaquina);
-
-
-                });
-            }).then(() => {
-
-                setNome('');
-                setConsumoMedio('');
-                setDataCompra('');
-                setModelo('');
-                setPotencia('');
-                setTipo({ label: '', value: '' });
-                setTipoCalculo({ label: '', value: '' });
-                setTipoCombustivel({ label: '', value: '' });
-                setTipoInsumo({ label: '', value: '' });
-                setValor('');
-                setVidaUtil('');
-
-                setGravidade('sucesso');
-                setMensagem('Máquina criada com sucesso!');
-                setToast(true);
-
-                console.log("Máquina criada com sucesso!");
-            }).catch((error) => {
-                setGravidade('erro');
-                setMensagem('Erro ao criar máquina');
-                setToast(true);
-                console.error("Erro ao criar máquina:", error);
-            });
-
+            setGravidade('erro');
+            setMensagem(maquina ? 'Erro ao atualizar a máquina' : 'Erro ao criar máquina');
         }
-    }
+        setToast(true);
+    };
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContent} >
@@ -326,7 +272,7 @@ export default function CriarMaquina() {
                 keyboard="numeric"
             />
 
-            <Botao nome="Salvar" onPress={salvarMaquina} disabled={false} />
+            <Botao nome="Salvar" onPress={salvar} disabled={false} />
 
             {toast &&
                 <Toast setToast={setToast}

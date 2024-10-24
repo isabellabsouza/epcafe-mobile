@@ -1,11 +1,14 @@
 import Botao from '@/src/components/Botao';
 import InfoLinha from '@/src/components/InfoLinha';
+import ModalConfirmacao from '@/src/components/ModalConfirmacao';
 import Titulo from '@/src/components/Titulo';
 import Toast from '@/src/components/toast/Toast';
+import DespesaMaquinaController from '@/src/controller/DespesaMaquinaController';
+import MaquinaController from '@/src/controller/MaquinaController';
 import database, { despesasMaquinasCollection, maquinasCollection } from '@/src/db';
 import DespesaMaquina from '@/src/db/model/DespesaMaquina';
 import { withObservables } from '@nozbe/watermelondb/react';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -24,29 +27,27 @@ function detalharDespesaMaquina({ despesaMaquina }: { despesaMaquina: DespesaMaq
         return <Text>Despesa não encontrada.</Text>;
     }
 
-    console.log("DespesaMaquina:", despesaMaquina);
-
     const excluir = async () => {
-        await database.write(async () => {
-            await despesaMaquina.markAsDeleted();
-        });
-        setGravidade('sucesso');
-        setMensagem('Despesa excluída com sucesso!');
-        setToast(true);
-        setTimeout(() => { router.back() }, 3000);
-        console.log("Despesa excluída com sucesso.");
+        const sucesso = await DespesaMaquinaController.excluirDespesaMaquina(despesaMaquina);
+
+        if (sucesso) {
+            setGravidade('sucesso');
+            setMensagem('Despesa excluída com sucesso!');
+            setToast(true);
+            setTimeout(() => { router.back() }, 2000);
+        } else {
+            setGravidade('erro');
+            setMensagem('Erro ao excluir a despesa!');
+            setToast(true);
+        }
     };
 
     useEffect(() => {
-        const buscarMaquina = async () => {
-            try {
-                const maquinaEncontrada = await maquinasCollection.find(despesaMaquina.maquina.id);
-                setNomeMaquina(maquinaEncontrada.nome);
-            } catch (error) {
-                console.error("Erro ao buscar a máquina:", error);
-            }
+        const buscarNomeMaquina = async () => {
+            const nomeMaquina = await MaquinaController.buscarNomeMaquina(despesaMaquina.maquina.id);
+            setNomeMaquina(nomeMaquina);
         }
-        buscarMaquina();
+        buscarNomeMaquina();
     }, [])
 
     return (
@@ -56,63 +57,37 @@ function detalharDespesaMaquina({ despesaMaquina }: { despesaMaquina: DespesaMaq
             <InfoLinha label="Data" valor={despesaMaquina.data.toLocaleDateString()} />
             <InfoLinha label="Distância Trabalhada" valor={String(despesaMaquina.distanciaTrabalhada) + " km"} />
             <InfoLinha label="Fator de Potência" valor={despesaMaquina.fatorPotencia} />
-            <InfoLinha 
-                label="Preço do Combustível" 
-                valor={new Intl.NumberFormat('pt-BR', { 
-                    style: 'currency', currency: 'BRL' 
+            <InfoLinha
+                label="Preço do Combustível"
+                valor={new Intl.NumberFormat('pt-BR', {
+                    style: 'currency', currency: 'BRL'
                 }).format(despesaMaquina.precoUnitarioCombustivel)
-                .replace('R$', 'R$ ')
-                } 
+                    .replace('R$', 'R$ ')
+                }
             />
-            <InfoLinha 
-                label="Tempo Trabalhado" 
+            <InfoLinha
+                label="Tempo Trabalhado"
                 valor={
                     `${String(despesaMaquina.tempoTrabalhado)} ${despesaMaquina.unidadeHoras == false ? " horas" : " minutos"}`
-                } 
+                }
             />
-            <InfoLinha label="Máquina" valor={nomeMaquina} />
+            
+            <InfoLinha label="Máquina" valor={nomeMaquina} rota={`/restricted/maquinas/detalhar?id=${despesaMaquina.maquina.id}`} />
+            
             <InfoLinha
                 label="Valor Total"
-                valor={new Intl.NumberFormat('pt-BR', { 
-                    style: 'currency', currency: 'BRL' 
+                valor={new Intl.NumberFormat('pt-BR', {
+                    style: 'currency', currency: 'BRL'
                 }).format(despesaMaquina.valorTotal)
-                .replace('R$', 'R$ ')
+                    .replace('R$', 'R$ ')
                 }
             />
 
-            <Modal
-                animationType="slide"
-                transparent={true}
+            <ModalConfirmacao
                 visible={modalVisible}
-                onRequestClose={() => {
-                    Alert.alert('Modal has been closed.');
-                    setModalVisible(!modalVisible);
-                }}
-            >
-                <View style={styles.overlay}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalTexto}>
-                            Tem certeza que deseja excluir a despesa com ?
-                        </Text>
-                        <View style={styles.botoesModal}>
-                            <Botao
-                                nome="Excluir"
-                                onPress={() => {
-                                    excluir();
-                                    setModalVisible(!modalVisible);
-                                }}
-                                disabled={false}
-                            />
-                            <Botao
-                                nome="Cancelar"
-                                onPress={() => setModalVisible(!modalVisible)}
-                                disabled={false}
-                            />
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
+                onClose={() => setModalVisible(false)}
+                onConfirm={excluir}
+            />
 
 
             <View style={styles.botoesContainer}>

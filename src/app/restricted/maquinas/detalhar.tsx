@@ -1,15 +1,16 @@
 import Botao from '@/src/components/Botao';
 import InfoLinha from '@/src/components/InfoLinha';
+import ModalConfirmacao from '@/src/components/ModalConfirmacao';
 import Titulo from '@/src/components/Titulo';
 import Toast from '@/src/components/toast/Toast';
-import database, { maquinasCollection } from '@/src/db';
+import MaquinaController from '@/src/controller/MaquinaController';
+import { maquinasCollection } from '@/src/db';
 import Maquina from '@/src/db/model/Maquina';
-import { supabase } from '@/src/lib/supabase';
 import TipoMecanico from '@/src/utils/enums/TipoMecanico';
 import { withObservables } from '@nozbe/watermelondb/react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 function detalharMaquina({ maquina }: { maquina: Maquina }) {
 
@@ -21,25 +22,26 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
     const [gravidade, setGravidade] = useState('');
     const [mensagem, setMensagem] = useState('');
 
-    console.log("Maquina:", maquina);
-
     if (!maquina) {
         return <Text>Máquina não encontrada.</Text>;
     }
 
-    console.log("Maquina:", maquina);
 
     const excluir = async () => {
-        await database.write(async () => {
-            await maquina.markAsDeleted();
-        });
-        setGravidade('sucesso');
-        setMensagem('Máquina excluída com sucesso!');    
-        setToast(true);
-        setTimeout(() => {router.back()}, 3000);
-        console.log("Máquina excluída com sucesso.");
+        const sucesso = await MaquinaController.excluirMaquina(maquina);
+
+        if (sucesso) {
+            setGravidade('sucesso');
+            setMensagem('Máquina excluída com sucesso!');
+            setToast(true);
+            setTimeout(() => {router.back()}, 2000);
+        } else {
+            setGravidade('erro');
+            setMensagem('Erro ao excluir a máquina!');
+            setToast(true);
+        }
     };
-    supabase.auth.getUser().then(user => console.log(user));
+
     return (
         <ScrollView contentContainerStyle={styles.scrollContent}>
             <Titulo titulo={maquina.nome} />
@@ -64,38 +66,11 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
             />
             <InfoLinha label="Vida Útil" valor={maquina.vidaUtil + " anos"} />
 
-            <Modal
-                animationType="slide"
-                transparent={true}
+            <ModalConfirmacao 
                 visible={modalVisible}
-                onRequestClose={() => {
-                    Alert.alert('Modal has been closed.');
-                    setModalVisible(!modalVisible);
-                }}
-            >
-                <View style={styles.overlay}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalTexto}>
-                            Tem certeza que deseja excluir a máquina {maquina.nome}?
-                        </Text>
-                        <View style={styles.botoesModal}>
-                            <Botao
-                                nome="Excluir"
-                                onPress={() => {
-                                    excluir();
-                                    setModalVisible(!modalVisible);
-                                }}
-                                disabled={false}
-                            />
-                            <Botao
-                                nome="Cancelar"
-                                onPress={() => setModalVisible(!modalVisible)}
-                                disabled={false}
-                            />
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+                onClose={() => setModalVisible(false)}
+                onConfirm={excluir}
+            />
 
             
 
@@ -103,12 +78,14 @@ function detalharMaquina({ maquina }: { maquina: Maquina }) {
                 <Botao nome="Editar" rota={`/restricted/maquinas/criar?id=${id}`} />
                 <Botao nome="Excluir" onPress={() => setModalVisible(true)} />
             </View>
+
             {toast && 
                 <Toast setToast={ setToast } 
                     mensagem={mensagem} 
                     gravidade={gravidade} 
                 />
             }
+
         </ScrollView>
     );
 }
@@ -146,34 +123,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         marginTop: 15,
-    },
-    overlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo semitransparente
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        margin: 20,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 20,
-        padding: 25,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    botoesModal: {
-        flexDirection: 'row',
-        gap: 15,
-    },
-    modalTexto: {
-        fontSize: 20,
-        textAlign: 'center',
     },
 })
