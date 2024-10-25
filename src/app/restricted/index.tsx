@@ -1,15 +1,13 @@
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import Card from '@/src/components/CardPadrao';
 import Subtitulo from '@/src/components/Subtitulo';
 import Titulo from '@/src/components/Titulo';
-import SyncButton from '@/src/components/navigation/SyncButton';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import BotoesHeader from '@/src/components/navigation/BotoesHeader';
+import { unidadesCollection, usuariosCollection } from '@/src/db';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { unidadesCollection, usuariosCollection } from '@/src/db';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import BotaoMenu from '@/src/components/navigation/BotaoMenu';
+import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const cards = [
     {
@@ -55,11 +53,15 @@ export default function HomeScreen() {
             {usuario ? (
                 <>
                     <View style={styles.syncButton}>
-                        <Text style={styles.unidade}>{nomeUnidade}</Text>
-                        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-                            <SyncButton />
-                            <BotaoMenu />
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 7
+                        }}>
+                            <FontAwesome5 name="house-user" size={22} color="black" />
+                            <Text style={styles.unidade}>{nomeUnidade}</Text>
                         </View>
+                        <BotoesHeader />
                     </View>
                     <Titulo titulo={`Bem-vindo ${usuario.nome}!`} />
                     <Subtitulo subtitulo="Gerenciar propriedade" />
@@ -105,14 +107,14 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     botoesContainer: {
-        
+
         gap: 15
     },
     botoesAcoes: {
-        flexDirection: 'row', 
+        flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 10, 
-        alignItems: 'center', 
+        gap: 10,
+        alignItems: 'center',
         backgroundColor: '#D9d9d9',
         padding: 10,
         borderRadius: 10

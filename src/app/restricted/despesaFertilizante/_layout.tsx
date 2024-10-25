@@ -1,4 +1,4 @@
-import SyncButton from "@/src/components/navigation/SyncButton";
+import BotoesHeader from "@/src/components/navigation/BotoesHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
@@ -22,7 +22,7 @@ export default function DespesaFertilizanteLayout() {
 
         <Stack screenOptions={{
             headerShown:true,
-            headerRight: () => <SyncButton />,
+            headerRight: () => <BotoesHeader /> ,
             title: nomeUnidade || "",
             }} >
             

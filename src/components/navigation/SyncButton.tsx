@@ -30,6 +30,6 @@ const styles = StyleSheet.create({
         opacity: 1,
     },
     disabledButton: {
-        opacity: 0.5, // Reduz a opacidade se o botão estiver desativado
+        opacity: 0.5, 
     },
 });
