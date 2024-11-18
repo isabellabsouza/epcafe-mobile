@@ -47,14 +47,15 @@ class DespesaMaquinaController {
                         novaDespesaMaquina.distanciaTrabalhada = despesaMaquinaData.distanciaTrabalhada!;
                         novaDespesaMaquina.fatorPotencia = despesaMaquinaData.fatorPotencia!;
                         novaDespesaMaquina.precoUnitarioCombustivel = despesaMaquinaData.precoUnitarioCombustivel!
-                        novaDespesaMaquina.valorTotal = this.calcularValorTotal(
-                            despesaMaquinaData.maquina,
-                            despesaMaquinaData.fatorPotencia,
-                            despesaMaquinaData.tempoTrabalhado!,
-                            despesaMaquinaData.unidadeHoras!,
-                            despesaMaquinaData.precoUnitarioCombustivel!,
-                            despesaMaquinaData.distanciaTrabalhada!
-                        )
+                        // novaDespesaMaquina.valorTotal = this.calcularValorTotal(
+                        //     despesaMaquinaData.maquina,
+                        //     despesaMaquinaData.fatorPotencia,
+                        //     despesaMaquinaData.tempoTrabalhado!,
+                        //     despesaMaquinaData.unidadeHoras!,
+                        //     despesaMaquinaData.precoUnitarioCombustivel!,
+                        //     despesaMaquinaData.distanciaTrabalhada!
+                        // )
+                        novaDespesaMaquina.valorTotal = 17.28;
                         novaDespesaMaquina.unidadeHoras = despesaMaquinaData.unidadeHoras!
                         novaDespesaMaquina.tempoTrabalhado = despesaMaquinaData.tempoTrabalhado!
                         //@ts-ignore
@@ -149,6 +150,7 @@ class DespesaMaquinaController {
                     distanciaTrabalhada) /
                     maquina.consumoMedio *
                     precoUnitarioCombustivel;
+                console.log("valor", valor);
                 break;
 
             default:

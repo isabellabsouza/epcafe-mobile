@@ -1,7 +1,7 @@
 import { mySync } from "@/src/db/sync";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNetInfo } from "@react-native-community/netinfo";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 
 export default function SyncButton() {
     const netInfo = useNetInfo();
@@ -12,7 +12,7 @@ export default function SyncButton() {
             disabled={!netInfo.isConnected}
             style={[
                 styles.button,
-                !netInfo.isConnected && styles.disabledButton, // Aplica estilo se desativado
+                !netInfo.isConnected && styles.disabledButton,
             ]}
         >
             <MaterialCommunityIcons 
